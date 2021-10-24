@@ -1,0 +1,23 @@
+<section
+  mat-dialog-title
+  style.background-image="url({{ menu.image }})"
+  class="hero"
+></section>
+<mat-dialog-content>
+  <div class="head">
+    <h1 class="name">{{ menu.name }}</h1>
+    <p class="description">{{ menu.description }}</p>
+  </div>
+  <div class="body" *ngIf="menu.subchoices?.length > 0">
+    <ul>
+      <li class="subchoice-group" *ngFor="let group of menu.subchoices">
+        <app-shop-menu-subchoice-form
+          [group]="group"
+        ></app-shop-menu-subchoice-form>
+      </li>
+    </ul>
+  </div>
+</mat-dialog-content>
+<mat-dialog-actions>
+  <button mat-button color="primary">주문하기</button>
+</mat-dialog-actions>

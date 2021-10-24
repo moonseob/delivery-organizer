@@ -2,4 +2,6 @@
 <h2>info</h2>
 <p>{{ info$ | async | json }}</p>
 <h2>menu</h2>
-<p>{{ menu$ | async | json }}</p>
+<section class="category" *ngFor="let category of categories$ | async">
+  <app-shop-menu-category [category]="category"></app-shop-menu-category>
+</section>

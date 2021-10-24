@@ -1,15 +1,23 @@
 import { HttpClientModule } from '@angular/common/http';
-import { NgModule } from '@angular/core';
+import { DEFAULT_CURRENCY_CODE, NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { RouterModule, Routes } from '@angular/router';
 import { ServiceWorkerModule } from '@angular/service-worker';
+import { MatModule } from 'src/mat.module';
 import { environment } from '../environments/environment';
 import { AppComponent } from './app.component';
+import { AuthGuard } from './shared/services/auth.guard';
 
 const routes: Routes = [
   {
+    path: '',
+    redirectTo: 'shop',
+    pathMatch: 'full',
+  },
+  {
     path: 'shop',
+    canActivate: [AuthGuard],
     loadChildren: async () => (await import('./shop/shop.module')).ShopModule,
   },
 ];
@@ -19,6 +27,7 @@ const routes: Routes = [
   imports: [
     BrowserModule,
     HttpClientModule,
+    MatModule,
     BrowserAnimationsModule,
     RouterModule.forRoot(routes),
     ServiceWorkerModule.register('ngsw-worker.js', {
@@ -28,7 +37,12 @@ const routes: Routes = [
       registrationStrategy: 'registerWhenStable:30000',
     }),
   ],
-  providers: [],
+  providers: [
+    {
+      provide: DEFAULT_CURRENCY_CODE,
+      useValue: 'KRW',
+    },
+  ],
   bootstrap: [AppComponent],
 })
 export class AppModule {}

@@ -12,7 +12,7 @@ export class ShopDetailComponent implements OnInit {
   shopId = '574077';
 
   info$ = this.apiService.getInfo(this.shopId);
-  menu$ = this.apiService.getMenu(this.shopId);
+  categories$ = this.apiService.getMenu(this.shopId);
 
   ngOnInit(): void {}
 }

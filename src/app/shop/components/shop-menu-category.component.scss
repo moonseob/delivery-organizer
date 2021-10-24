@@ -1,0 +1,17 @@
+.menus > ul {
+  padding: 0;
+  margin: 0;
+  list-style: none;
+  display: grid;
+  grid-gap: 40px 24px;
+  grid-template-columns: repeat(3, 1fr);
+}
+
+app-shop-menu-card {
+  flex: 1 1 35%;
+  border: 1px solid lightgray;
+  transition: border-color 0.2s;
+  &:hover {
+    border-color: black;
+  }
+}

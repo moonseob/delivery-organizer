@@ -1,0 +1,12 @@
+<ul [ngSwitch]="group.multiple">
+  <ng-container *ngSwitchCase="true">
+    <li *ngFor="let subchoice of group.subchoices" [formArray]="formArray">
+      <mat-checkbox class="example-margin" [formControl]=""
+        >Checked</mat-checkbox
+      >
+      <mat-checkbox class="example-margin" [(ngModel)]="indeterminate"
+        >Indeterminate</mat-checkbox
+      >
+    </li>
+  </ng-container>
+</ul>
