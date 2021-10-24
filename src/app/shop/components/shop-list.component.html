@@ -1,1 +1,15 @@
-shops: {{ list$ | async | json }}
+<mat-card *ngFor="let shop of list$ | async">
+  <mat-card-header>
+    "메뉴 아이콘"
+    <i mat-card-avatar class="fas fa-seedling"></i>
+    <mat-card-title>"메뉴 종류"</mat-card-title>
+  </mat-card-header>
+  <img mat-card-image [src]="shop.hero" />
+  <mat-card-content>
+    <h3>{{ shop.name }}</h3>
+    <p>{{ shop. }}</p>
+  </mat-card-content>
+  <mat-card-actions>
+    <button mat-button color="primary">메뉴 확인하기</button>
+  </mat-card-actions>
+</mat-card>

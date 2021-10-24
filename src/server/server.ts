@@ -104,7 +104,34 @@ app.get('/api/shop', (req, res) => {
   res.json({ data: STORE_LIST });
 });
 
-app.get('/api/shop/:shopId/stats', async (req, res) => {});
+app.get('/api/shop/:shopId', async (req, res) => {
+  try {
+    const { shopId } = req.params;
+    if (req.params.shopId == null) {
+      res.sendStatus(400);
+    }
+    const response: AxiosResponse = await axios.get(
+      `${YOGIYO.apiHost}/v1/restaurants/${shopId}`,
+      {
+        headers: YOGIYO.httpHeader,
+      }
+    );
+    console.log(response.data);
+    res.json({ data: response.data });
+  } catch (e) {
+    console.error(e);
+    res.sendStatus(500);
+  }
+});
+
+app.get('/api/shop/:shopId/stats', async (req, res) => {
+  res.json({
+    data: {
+      due: '2021-10-25T15:00:00+09:00`',
+      ordered_users: ['a', 'b', 'c'],
+    },
+  }); // DEBUG
+});
 
 /** 가게 정보 호출 */
 app.get('/api/shop/:shopId/info', async (req, res) => {
@@ -113,11 +140,10 @@ app.get('/api/shop/:shopId/info', async (req, res) => {
     if (req.params.shopId == null) {
       res.sendStatus(400);
     }
-    // res.json(info); // DEBUG
     const KEY = `shop.${shopId}`;
-    redisClient.get(KEY, async (err, result) => {
-      if (result) {
-        res.send(result);
+    redisClient.get(KEY, async (err, data) => {
+      if (data) {
+        res.send({ data });
       } else {
         const response: AxiosResponse = await axios.get(
           `${YOGIYO.apiHost}/v1/restaurants/${shopId}/info/`,
@@ -125,9 +151,9 @@ app.get('/api/shop/:shopId/info', async (req, res) => {
             headers: YOGIYO.httpHeader,
           }
         );
+        res.json(response.data);
         redisClient.setex(KEY, 86400, JSON.stringify(response.data));
         console.log(`REDIS: 가게 정보 ${KEY} 저장 성공`);
-        res.json(response.data);
       }
     });
     // const response: AxiosResponse = await axios.get(
@@ -150,7 +176,7 @@ app.get('/api/shop/:shopId/menu', async (req, res) => {
     if (req.params.shopId == null) {
       res.sendStatus(400);
     }
-    res.json(menu); // DEBUG
+    res.json({ data: menu }); // DEBUG
     // const response: AxiosResponse = await axios.get(
     //   `${YOGIYO.apiHost}/v1/restaurants/${shopId}/menu/` /*  +
     //     '?add_photo_menu=android&add_one_dish_menu=true&order_serving_type=delivery' */,
