@@ -127,7 +127,7 @@ app.get('/api/shop/:shopId', async (req, res) => {
 app.get('/api/shop/:shopId/stats', async (req, res) => {
   res.json({
     data: {
-      due: '2021-10-25T15:00:00+09:00`',
+      due: '2021-10-25T15:00:00+09:00',
       ordered_users: ['a', 'b', 'c'],
     },
   }); // DEBUG

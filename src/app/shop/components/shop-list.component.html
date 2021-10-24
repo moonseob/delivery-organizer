@@ -7,9 +7,22 @@
   <img mat-card-image [src]="shop.hero" />
   <mat-card-content>
     <h3>{{ shop.name }}</h3>
-    <p>{{ shop. }}</p>
+    <div>
+      <p>이 메뉴는</p>
+      <span class="prop" *ngIf="shop.due as due"
+        ><i class="fas fa-hourglass"></i> 주문 마감까지 {{ due }}분
+        남았어요</span
+      >
+      <span class="prop" *ngIf="shop.eta as eta"
+        ><i class="fas fa-stopwatch"></i> 배달이 {{ eta }} 정도 걸려요</span
+      >
+      <span class="prop" *ngIf="shop.ordered_users as users"
+        ><i class="fas fa-user"></i> {{ users.length }}명이 주문했어요</span
+      >
+    </div>
   </mat-card-content>
   <mat-card-actions>
-    <button mat-button color="primary">메뉴 확인하기</button>
+    <a routerLink="shop." mat-raised-button color="primary">메뉴 확인</a>
+    <button mat-stroked-button color="primary">주문한 사람들</button>
   </mat-card-actions>
 </mat-card>
