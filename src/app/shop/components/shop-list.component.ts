@@ -1,4 +1,6 @@
 import { Component, OnInit } from '@angular/core';
+import dayjs from 'dayjs';
+import duration from 'dayjs/plugin/duration';
 import { combineLatest, from } from 'rxjs';
 import {
   distinctUntilChanged,
@@ -11,11 +13,14 @@ import {
 import { ShopStats } from '../models/shop-stats.model';
 import { ShopApiService } from '../services/shop-api.service';
 
+dayjs.extend(duration);
+
 interface ShopInfoUI extends ShopStats {
   name: string;
   thumb: string;
   hero: string;
   eta: string;
+  id: number;
 }
 
 @Component({
@@ -26,21 +31,9 @@ interface ShopInfoUI extends ShopStats {
 export class ShopListComponent implements OnInit {
   constructor(private apiService: ShopApiService) {}
 
-  // getRemainingTime(): Observable<string> {
-  //   return this.list$.pipe(
-  //     pluck('due'),
-  //     switchMap((due: string) =>
-  //       interval(30 * 1000).pipe(
-  //         startWith(0),
-  //         map(() => {
-  //           const minutes =
-  //             (new Date().valueOf() - new Date(due).valueOf()) / 1000 / 60;
-  //           return `${minutes}분 남음`;
-  //         })
-  //       )
-  //     )
-  //   );
-  // }
+  getRemainingTime(due: string): string | number {
+    return dayjs().diff(due, 'm').toString();
+  }
 
   list$ = this.apiService.getList().pipe(
     mergeMap((list) => from(list)),
@@ -49,6 +42,7 @@ export class ShopListComponent implements OnInit {
       combineLatest([
         this.apiService.getInfo(shopId).pipe(
           map((res) => ({
+            id: res.id,
             name: res.name,
             thumb: res.logo_url,
             hero: res.background_url,

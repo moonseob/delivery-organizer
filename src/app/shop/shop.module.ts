@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { NgModule } from '@angular/core';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { MatModule } from 'src/mat.module';
 import { ShopDetailComponent } from './components/shop-detail.component';
@@ -21,6 +22,8 @@ import { ShopMenuSubchoiceFormComponent } from './components/shop-menu-subchoice
   imports: [
     CommonModule,
     MatModule,
+    FormsModule,
+    ReactiveFormsModule,
     RouterModule.forChild([
       {
         path: '',

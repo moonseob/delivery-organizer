@@ -1,4 +1,6 @@
 import { Component, OnInit } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
+import { Observable } from 'rxjs';
 import { ShopApiService } from '../services/shop-api.service';
 
 @Component({
@@ -7,12 +9,18 @@ import { ShopApiService } from '../services/shop-api.service';
   styleUrls: ['./shop-detail.component.scss'],
 })
 export class ShopDetailComponent implements OnInit {
-  constructor(private apiService: ShopApiService) {}
+  constructor(
+    private apiService: ShopApiService,
+    private route: ActivatedRoute
+  ) {}
+  info$!: Observable<any>;
+  categories$!: Observable<any>;
 
-  shopId = '574077';
-
-  info$ = this.apiService.getInfo(this.shopId);
-  categories$ = this.apiService.getMenu(this.shopId);
-
-  ngOnInit(): void {}
+  ngOnInit(): void {
+    const shopId = this.route.snapshot.paramMap.get('id');
+    if (!!shopId) {
+      this.info$ = this.apiService.getDetailedInfo(shopId);
+      this.categories$ = this.apiService.getMenu(shopId);
+    }
+  }
 }

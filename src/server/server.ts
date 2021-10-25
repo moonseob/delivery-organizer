@@ -7,7 +7,6 @@ import passport from 'passport';
 import { OAuth2Strategy } from 'passport-google-oauth';
 import * as redis from 'redis';
 import { YOGIYO } from './constants';
-import { menu } from './mock-data';
 
 declare module 'express-session' {
   export interface SessionData {
@@ -100,24 +99,43 @@ app.get('/auth/getuser', (req, res) => {
   }
 });
 
+const getFromRedis = (key: string, axiosURL: string) =>
+  new Promise((resolve, reject) =>
+    redisClient.get(key, async (err, data) => {
+      if (err) {
+        reject(err);
+      }
+      if (data) {
+        console.log('redis에서의 응답 성공: ', key);
+        resolve(JSON.parse(data));
+      } else {
+        const response: AxiosResponse = await axios.get(axiosURL, {
+          headers: YOGIYO.httpHeader,
+        });
+        redisClient.setex(key, 86400, JSON.stringify(response.data));
+        console.log('redis에 저장 성공: ', key);
+        resolve(response.data);
+      }
+    })
+  );
+
 app.get('/api/shop', (req, res) => {
   res.json({ data: STORE_LIST });
 });
 
+/** 가게 기본 정보 호출 */
 app.get('/api/shop/:shopId', async (req, res) => {
   try {
     const { shopId } = req.params;
     if (req.params.shopId == null) {
       res.sendStatus(400);
     }
-    const response: AxiosResponse = await axios.get(
-      `${YOGIYO.apiHost}/v1/restaurants/${shopId}`,
-      {
-        headers: YOGIYO.httpHeader,
-      }
+    const key = `shop.${shopId}`;
+    const data = await getFromRedis(
+      key,
+      `${YOGIYO.apiHost}/v1/restaurants/${shopId}`
     );
-    console.log(response.data);
-    res.json({ data: response.data });
+    res.json({ data });
   } catch (e) {
     console.error(e);
     res.sendStatus(500);
@@ -140,29 +158,12 @@ app.get('/api/shop/:shopId/info', async (req, res) => {
     if (req.params.shopId == null) {
       res.sendStatus(400);
     }
-    const KEY = `shop.${shopId}`;
-    redisClient.get(KEY, async (err, data) => {
-      if (data) {
-        res.send({ data });
-      } else {
-        const response: AxiosResponse = await axios.get(
-          `${YOGIYO.apiHost}/v1/restaurants/${shopId}/info/`,
-          {
-            headers: YOGIYO.httpHeader,
-          }
-        );
-        res.json(response.data);
-        redisClient.setex(KEY, 86400, JSON.stringify(response.data));
-        console.log(`REDIS: 가게 정보 ${KEY} 저장 성공`);
-      }
-    });
-    // const response: AxiosResponse = await axios.get(
-    //   `${YOGIYO.apiHost}/v1/restaurants/${shopId}/info/`,
-    //   {
-    //     headers: YOGIYO.httpHeader,
-    //   }
-    // );
-    // res.json(response.data);
+    const key = `info.${shopId}`;
+    const data = await getFromRedis(
+      key,
+      `${YOGIYO.apiHost}/v1/restaurants/${shopId}/info/`
+    );
+    res.json({ data });
   } catch (e) {
     console.error(e);
     res.sendStatus(500);
@@ -176,15 +177,13 @@ app.get('/api/shop/:shopId/menu', async (req, res) => {
     if (req.params.shopId == null) {
       res.sendStatus(400);
     }
-    res.json({ data: menu }); // DEBUG
-    // const response: AxiosResponse = await axios.get(
-    //   `${YOGIYO.apiHost}/v1/restaurants/${shopId}/menu/` /*  +
-    //     '?add_photo_menu=android&add_one_dish_menu=true&order_serving_type=delivery' */,
-    //   {
-    //     headers: YOGIYO.httpHeader,
-    //   }
-    // );
-    // res.json(response.data);
+    const key = `menu.${shopId}`;
+    const data = await getFromRedis(
+      key,
+      `${YOGIYO.apiHost}/v1/restaurants/${shopId}/menu/` /*  +
+        '?add_photo_menu=android&add_one_dish_menu=true&order_serving_type=delivery' */
+    );
+    res.json({ data });
   } catch (e) {
     console.error(e);
     res.sendStatus(500);
