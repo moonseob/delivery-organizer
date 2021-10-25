@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
 import { ShopApiService } from '../services/shop-api.service';
 
 @Component({
@@ -20,7 +21,11 @@ export class ShopDetailComponent implements OnInit {
     const shopId = this.route.snapshot.paramMap.get('id');
     if (!!shopId) {
       this.info$ = this.apiService.getDetailedInfo(shopId);
-      this.categories$ = this.apiService.getMenu(shopId);
+      this.categories$ = this.apiService
+        .getMenu(shopId)
+        .pipe(
+          map((res) => res.filter((cat) => cat.slug !== 'photo_menu_items'))
+        );
     }
   }
 }

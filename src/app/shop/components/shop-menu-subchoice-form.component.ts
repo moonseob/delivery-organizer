@@ -1,5 +1,5 @@
 import { Component, Input, OnInit } from '@angular/core';
-import { FormBuilder, Validators } from '@angular/forms';
+import { AbstractControl, FormBuilder, Validators } from '@angular/forms';
 import { Menu, MenuSubchoiceGroup } from '../models/shop-menu.model';
 
 @Component({
@@ -11,6 +11,7 @@ export class ShopMenuSubchoiceFormComponent implements OnInit {
   constructor(private fb: FormBuilder) {}
 
   @Input() group!: MenuSubchoiceGroup;
+  @Input('fc') formControl!: AbstractControl;
 
   formArray = this.fb.array([]);
   result2!: Array<Menu['name']>;

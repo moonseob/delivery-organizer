@@ -10,14 +10,14 @@
     <div>
       <p>이 메뉴는</p>
       <span class="prop" *ngIf="shop.due as due"
-        ><i class="fas fa-hourglass"></i> 주문 마감까지
-        {{ getRemainingTime(due) }}분 남았어요</span
+        ><mat-icon>timer</mat-icon> 주문 마감까지 {{ getRemainingTime(due) }}분
+        남았어요</span
       >
       <span class="prop" *ngIf="shop.eta as eta"
-        ><i class="fas fa-stopwatch"></i> 배달이 {{ eta }} 정도 걸려요</span
+        ><mat-icon>moped</mat-icon> 배달이 {{ eta }} 정도 걸려요</span
       >
       <span class="prop" *ngIf="shop.ordered_users as users"
-        ><i class="fas fa-user"></i> {{ users.length }}명이 주문했어요ㅔ</span
+        ><mat-icon>people</mat-icon> {{ users.length }}명이 주문했어요</span
       >
     </div>
   </mat-card-content>

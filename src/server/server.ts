@@ -180,8 +180,8 @@ app.get('/api/shop/:shopId/menu', async (req, res) => {
     const key = `menu.${shopId}`;
     const data = await getFromRedis(
       key,
-      `${YOGIYO.apiHost}/v1/restaurants/${shopId}/menu/` /*  +
-        '?add_photo_menu=android&add_one_dish_menu=true&order_serving_type=delivery' */
+      `${YOGIYO.apiHost}/v1/restaurants/${shopId}/menu/` +
+        '?add_photo_menu=android&add_one_dish_menu=true&order_serving_type=delivery'
     );
     res.json({ data });
   } catch (e) {

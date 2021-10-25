@@ -12,12 +12,15 @@
     <ul>
       <li class="subchoice-group" *ngFor="let group of menu.subchoices">
         <app-shop-menu-subchoice-form
+          [formControl]=""
           [group]="group"
         ></app-shop-menu-subchoice-form>
       </li>
     </ul>
   </div>
 </mat-dialog-content>
-<mat-dialog-actions>
-  <button mat-raised-button color="primary">주문하기</button>
+<mat-dialog-actions align="center">
+  <button class="submit" mat-raised-button color="primary">
+    장바구니 담기
+  </button>
 </mat-dialog-actions>

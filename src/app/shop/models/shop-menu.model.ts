@@ -12,8 +12,8 @@ export interface ShopMenuCat {
   name: string;
   /** 기본 설명 */
   description?: null | string;
-  image?: any;
-  ms_type?: any;
+  image?: string | null;
+  ms_type?: string | null;
 }
 
 /** 메뉴 1개 */
@@ -41,7 +41,9 @@ export interface Menu {
   soldout: boolean;
   /** 메뉴 이름 */
   name: string;
-  image: any; // DEBUG
+  /** 메뉴 사진 */
+  image: string;
+  original_image?: string;
 }
 
 /** 메뉴 옵션의 모임 */

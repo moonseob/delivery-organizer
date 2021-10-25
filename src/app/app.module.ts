@@ -8,6 +8,7 @@ import { MatModule } from 'src/mat.module';
 import { environment } from '../environments/environment';
 import { AppComponent } from './app.component';
 import { AuthGuard } from './shared/services/auth.guard';
+import { SharedModule } from './shared/shared.module';
 
 const routes: Routes = [
   {
@@ -36,6 +37,7 @@ const routes: Routes = [
       // or after 30 seconds (whichever comes first).
       registrationStrategy: 'registerWhenStable:30000',
     }),
+    SharedModule,
   ],
   providers: [
     {

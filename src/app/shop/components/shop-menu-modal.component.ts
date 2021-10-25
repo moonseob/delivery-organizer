@@ -1,4 +1,5 @@
 import { Component, Inject, OnInit } from '@angular/core';
+import { FormBuilder, FormGroup } from '@angular/forms';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { Menu } from '../models/shop-menu.model';
 
@@ -8,7 +9,17 @@ import { Menu } from '../models/shop-menu.model';
   styleUrls: ['./shop-menu-modal.component.scss'],
 })
 export class ShopMenuModalComponent implements OnInit {
-  constructor(@Inject(MAT_DIALOG_DATA) public menu: Menu) {}
+  constructor(
+    @Inject(MAT_DIALOG_DATA) public menu: Menu,
+    private fb: FormBuilder
+  ) {}
 
-  ngOnInit(): void {}
+  formGroup!: FormGroup;
+
+  ngOnInit(): void {
+    const controls = Object.fromEntries(
+      this.menu.subchoices?.map((subchoice) => [subchoice, [false]])
+    );
+    this.formGroup = this.fb.group({});
+  }
 }
