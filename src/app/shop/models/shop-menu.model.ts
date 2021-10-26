@@ -5,9 +5,9 @@ export interface MenuUserSelection {}
 
 /** 메뉴 카테고리(API 응답) */
 export interface ShopMenuCat {
+  slug: string;
   /** 메뉴 목록 */
   items: Menu[];
-  slug: string;
   /** 카테고리 이름 */
   name: string;
   /** 기본 설명 */
@@ -47,20 +47,25 @@ export interface Menu {
 }
 
 /** 메뉴 옵션의 모임 */
-export interface MenuSubchoiceGroup {
-  /** 선택 해제 불가 */
-  mandatory: boolean;
+export interface MenuSubchoiceGroupCart {
+  slug: string;
   /** 선택 종류 */
   name: string;
+  /** 복수 선택 가능 */
+  multiple: boolean;
+  /** 추가 선택 옵션 */
+  items: MenuSubchoice[];
+}
+export interface MenuSubchoiceGroup
+  extends Omit<MenuSubchoiceGroupCart, 'items'> {
+  /** 선택 해제 불가 */
+  mandatory: boolean;
   /** 최대 동시 선택 가능 수량 */
   multiple_count: number;
   /** 남은 수량 표시 */
   is_available_quantity: boolean;
   /** 옵션 선택지 */
   subchoices: MenuSubchoice[];
-  /** 복수 선택 가능 */
-  multiple: boolean;
-  slug: string;
 }
 
 /** 메뉴 옵션 */

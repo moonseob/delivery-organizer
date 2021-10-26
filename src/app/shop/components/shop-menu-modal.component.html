@@ -1,26 +1,33 @@
-<section
-  mat-dialog-title
-  style.background-image="url({{ menu.image }})"
-  class="hero"
-></section>
-<mat-dialog-content>
-  <div class="head">
-    <h1 class="name">{{ menu.name }}</h1>
-    <p class="description">{{ menu.description }}</p>
-  </div>
-  <div class="body" *ngIf="menu.subchoices?.length > 0">
-    <ul>
-      <li class="subchoice-group" *ngFor="let group of menu.subchoices">
-        <app-shop-menu-subchoice-form
-          [formControl]=""
-          [group]="group"
-        ></app-shop-menu-subchoice-form>
-      </li>
-    </ul>
-  </div>
-</mat-dialog-content>
-<mat-dialog-actions align="center">
-  <button class="submit" mat-raised-button color="primary">
-    장바구니 담기
-  </button>
-</mat-dialog-actions>
+<p>formGroup.value: {{ formGroup.value | json }}</p>
+
+<form (ngSubmit)="submit()">
+  <section
+    mat-dialog-title
+    style.background-image="url({{ menu.image }})"
+    class="hero"
+  ></section>
+  <mat-dialog-content>
+    <div class="head">
+      <h1 class="name">{{ menu.name }}</h1>
+      <p class="description">{{ menu.description }}</p>
+    </div>
+    <mat-card class="body" *ngIf="menu.subchoices?.length > 0">
+      <app-shop-menu-subchoice-form
+        *ngFor="let subchoice of menu.subchoices"
+        [ac]="formGroup.get(subchoice.slug)"
+        [group]="subchoice"
+      ></app-shop-menu-subchoice-form>
+    </mat-card>
+  </mat-dialog-content>
+  <mat-dialog-actions align="center">
+    <button
+      type="submit"
+      class="submit"
+      mat-raised-button
+      color="primary"
+      [disabled]="formGroup.invalid"
+    >
+      장바구니 담기
+    </button>
+  </mat-dialog-actions>
+</form>

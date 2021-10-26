@@ -1,24 +1,22 @@
-<!-- {{ group | json }} -->
-<ng-container [ngSwitch]="group.multiple">
+<mat-card [ngSwitch]="group.multiple">
+  <h2>{{ group.name }}</h2>
   <div formArray="formArray" *ngSwitchCase="true">
     <mat-checkbox
       class="selection"
-      *ngFor="let control of formArray.controls; let i = index"
+      *ngFor="let control of ac.controls; let i = index"
       [formControl]="control"
+      [value]="group.subchoices[i].slug"
       >{{ group.subchoices[i].name }}</mat-checkbox
     >
   </div>
-  <mat-radio-group *ngSwitchDefault [(ngModel)]="result">
+  <mat-radio-group *ngSwitchDefault [formControl]="ac">
     <mat-radio-button
       class="selection"
       *ngFor="let subchoice of group.subchoices; let i = index"
-      [value]="subchoice.id"
-      [checked]="i === 0"
+      [value]="[subchoice.slug]"
       >{{ subchoice.name }}, {{ i === 0 }}</mat-radio-button
     >
   </mat-radio-group>
-</ng-container>
+</mat-card>
 
-<p>result: {{ result | json }}</p>
-<p>result2: {{ result2 | json }}</p>
-<p>formArray: {{ formArray.value | json }}</p>
+<p>value: {{ ac.value | json }}</p>

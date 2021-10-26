@@ -1,5 +1,12 @@
+.hero {
+  background-repeat: no-repeat;
+  background-size: contain;
+  background-position: center;
+  padding-bottom: 75%;
+  max-height: 300px;
+}
 .mat-dialog-actions {
-  background-color: lightgray;
+  // background-color: lightgray;
 }
 .submit {
   width: 100%;

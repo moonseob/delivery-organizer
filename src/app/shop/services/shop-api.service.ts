@@ -3,7 +3,7 @@ import { Injectable } from '@angular/core';
 import { pluck } from 'rxjs/operators';
 import { environment } from 'src/environments/environment';
 import { ShopDetailedInfo } from '../models/shop-detailed-info.model';
-import { ShopInfo } from '../models/shop-info.model';
+import { Restaurant } from '../models/shop-info.model';
 import { ShopMenuCat } from '../models/shop-menu.model';
 import { ShopStats } from '../models/shop-stats.model';
 
@@ -30,7 +30,7 @@ export class ShopApiService {
   /** 가게의 기본 정보 */
   getInfo(shopId: string) {
     return this.httpClient
-      .get<{ data: ShopInfo }>(`${environment.apiUrl}/shop/${shopId}`)
+      .get<{ data: Restaurant }>(`${environment.apiUrl}/shop/${shopId}`)
       .pipe(pluck('data'));
   }
 

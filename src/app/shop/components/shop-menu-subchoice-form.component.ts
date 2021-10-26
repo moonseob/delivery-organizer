@@ -1,43 +1,27 @@
-import { Component, Input, OnInit } from '@angular/core';
-import { AbstractControl, FormBuilder, Validators } from '@angular/forms';
-import { Menu, MenuSubchoiceGroup } from '../models/shop-menu.model';
+import { AfterViewInit, Component, Input, OnInit } from '@angular/core';
+import { FormArray, FormBuilder, FormControl } from '@angular/forms';
+import { MenuSubchoiceGroup } from '../models/shop-menu.model';
 
 @Component({
   selector: 'app-shop-menu-subchoice-form',
   templateUrl: './shop-menu-subchoice-form.component.html',
   styleUrls: ['./shop-menu-subchoice-form.component.scss'],
 })
-export class ShopMenuSubchoiceFormComponent implements OnInit {
+export class ShopMenuSubchoiceFormComponent implements OnInit, AfterViewInit {
   constructor(private fb: FormBuilder) {}
 
   @Input() group!: MenuSubchoiceGroup;
-  @Input('fc') formControl!: AbstractControl;
+  @Input() ac!: FormControl | FormArray;
 
-  formArray = this.fb.array([]);
-  result2!: Array<Menu['name']>;
-  result!: string;
-  // result2
+  ngOnInit() {
+    // this.ac instanceof FormArray && console.log(this.ac);
+    if (this.ac instanceof FormControl) {
+      this.ac.setValue(this.group.subchoices[0].slug);
+      this.ac.updateValueAndValidity();
+    }
+  }
 
-  ngOnInit(): void {
-    if (this.group.mandatory) {
-    }
-    if (this.group.multiple) {
-      this.group.subchoices.forEach((choice) => {
-        this.formArray.push(this.fb.control(false));
-      });
-      this.formArray.addValidators([
-        Validators.minLength(this.group.multiple_count),
-        (control) => {
-          console.log(control.value);
-          this.result2 = (control.value as boolean[])
-            .filter((x) => x === true)
-            .map((_, idx) => this.group.subchoices[idx].id.toString());
-          return null;
-        },
-      ]);
-      this.formArray.updateValueAndValidity();
-    } else {
-      // this.result = this.group.subchoices[0].name;
-    }
+  ngAfterViewInit() {
+    // this.ac.updateValueAndValidity();
   }
 }
