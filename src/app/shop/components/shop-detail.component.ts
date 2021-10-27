@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
+import { CartService } from 'src/app/shared/services/cart.service';
 import { ShopApiService } from '../services/shop-api.service';
 
 @Component({
@@ -12,10 +13,13 @@ import { ShopApiService } from '../services/shop-api.service';
 export class ShopDetailComponent implements OnInit {
   constructor(
     private apiService: ShopApiService,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private svc: CartService
   ) {}
   info$!: Observable<any>;
   categories$!: Observable<any>;
+
+  cart$ = this.svc.getCart();
 
   ngOnInit(): void {
     const shopId = this.route.snapshot.paramMap.get('id');

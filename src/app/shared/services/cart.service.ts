@@ -20,7 +20,7 @@ export class CartService {
   private cart$ = new BehaviorSubject<UserCart | null>(null);
 
   async addMenu(restaurantId: number, item: CartItem): Promise<void> {
-    if (restaurantId !== this.restaurantId) {
+    if (!!this.restaurantId && this.restaurantId !== restaurantId) {
       const result = await (this.dialog
         .open(WarningMessageComponent, {
           data: {
@@ -33,6 +33,7 @@ export class CartService {
       if (!result) {
         return;
       }
+      this.items = [];
     }
     this.items = this.items.concat(item);
     this.updateCart();
@@ -55,6 +56,10 @@ export class CartService {
     const next = this.items.length > 0 ? cart : null;
     window.localStorage?.setItem('cart', JSON.stringify(next));
     this.cart$.next(next);
+  }
+
+  clearCart() {
+    this.cart$.next;
   }
 
   getCart() {
