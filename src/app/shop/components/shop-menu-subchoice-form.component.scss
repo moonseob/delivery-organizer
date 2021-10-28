@@ -1,3 +1,13 @@
 .selection {
   display: block;
+  margin: 6px 0;
+}
+
+.price-change {
+  color: #ff4081;
+  font-size: 0.9em;
+  &::before {
+    content: " ";
+    white-space: pre;
+  }
 }

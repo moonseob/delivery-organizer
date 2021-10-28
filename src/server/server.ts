@@ -42,6 +42,8 @@ app.use(
     saveUninitialized: true,
   })
 );
+/** 요청 body에 대해 json 형식 사용 */
+app.use(express.json());
 /** passport 사용 설정 */
 app.use(passport.initialize());
 app.use(passport.session());
@@ -184,6 +186,18 @@ app.get('/api/shop/:shopId/menu', async (req, res) => {
         '?add_photo_menu=android&add_one_dish_menu=true&order_serving_type=delivery'
     );
     res.json({ data });
+  } catch (e) {
+    console.error(e);
+    res.sendStatus(500);
+  }
+});
+
+/** 장바구니 수신 */
+app.post(`/api/order`, async (req, res) => {
+  try {
+    // console.log(req.headers)
+    console.log(req.body);
+    res.json({ data: 'ok' });
   } catch (e) {
     console.error(e);
     res.sendStatus(500);

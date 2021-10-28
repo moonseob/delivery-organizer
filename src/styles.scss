@@ -10,3 +10,11 @@ body {
   font-family: Roboto, "Helvetica Neue", sans-serif;
   background-color: rgb(245, 245, 245);
 }
+
+.no-inner-padding {
+  padding: 0 !important;
+}
+
+.mat-bottom-sheet-container {
+  max-height: initial !important;
+}

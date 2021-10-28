@@ -17,6 +17,7 @@ export class ShopDetailComponent implements OnInit {
     private svc: CartService
   ) {}
   info$!: Observable<any>;
+  detailedInfo$!: Observable<any>;
   categories$!: Observable<any>;
 
   cart$ = this.svc.getCart();
@@ -24,7 +25,8 @@ export class ShopDetailComponent implements OnInit {
   ngOnInit(): void {
     const shopId = this.route.snapshot.paramMap.get('id');
     if (!!shopId) {
-      this.info$ = this.apiService.getDetailedInfo(shopId);
+      this.info$ = this.apiService.getInfo(shopId);
+      this.detailedInfo$ = this.apiService.getDetailedInfo(shopId);
       this.categories$ = this.apiService
         .getMenu(shopId)
         .pipe(

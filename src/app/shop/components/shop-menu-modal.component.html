@@ -1,7 +1,6 @@
-<p>formGroup.value: {{ formGroup.value | json }}</p>
-
 <form (ngSubmit)="submit()">
   <section
+    *ngIf="!!menu.image"
     mat-dialog-title
     style.background-image="url({{ menu.image }})"
     class="hero"
@@ -11,15 +10,16 @@
       <h1 class="name">{{ menu.name }}</h1>
       <p class="description">{{ menu.description }}</p>
     </div>
-    <mat-card class="body" *ngIf="menu.subchoices?.length > 0">
+    <div class="body" *ngIf="menu.subchoices?.length > 0">
       <app-shop-menu-subchoice-form
         *ngFor="let subchoice of menu.subchoices"
         [ac]="formGroup.get(subchoice.slug)"
         [group]="subchoice"
       ></app-shop-menu-subchoice-form>
-    </mat-card>
+    </div>
   </mat-dialog-content>
   <mat-dialog-actions align="center">
+    <p>가격: {{ price$ | async | currency }}</p>
     <button
       type="submit"
       class="submit"

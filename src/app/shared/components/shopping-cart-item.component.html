@@ -1,0 +1,10 @@
+<div class="header">
+  <h3>{{ item.name }}</h3>
+  <a mat-icon-button (click)="remove.emit()">
+    <mat-icon>delete</mat-icon>
+  </a>
+</div>
+<ul>
+  <li *ngFor="let sub of subchoices">{{ sub.name }}: {{ sub.items }}</li>
+</ul>
+<p class="price">{{ item.price | currency }}</p>

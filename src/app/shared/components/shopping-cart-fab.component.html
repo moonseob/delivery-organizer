@@ -7,4 +7,6 @@
   <mat-icon>shopping_cart</mat-icon>
 </button>
 
-<div class="badge" [ngClass]="count === 0 && 'gray'">{{ count }}</div>
+<div class="badge" [ngClass]="(count$ | async) === 0 && 'gray'">
+  {{ count$ | async }}
+</div>

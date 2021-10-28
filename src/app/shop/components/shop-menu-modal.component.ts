@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, Inject, OnInit } from '@angular/core';
+import { Component, Inject, OnInit } from '@angular/core';
 import {
   FormArray,
   FormBuilder,
@@ -7,6 +7,8 @@ import {
 } from '@angular/forms';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { BigNumber } from 'bignumber.js';
+import { Observable, of } from 'rxjs';
+import { map, shareReplay, startWith, take } from 'rxjs/operators';
 import { CartItem } from '../../shared/models/cart.model';
 import { Menu, MenuSubchoice } from '../models/shop-menu.model';
 
@@ -15,7 +17,7 @@ import { Menu, MenuSubchoice } from '../models/shop-menu.model';
   templateUrl: './shop-menu-modal.component.html',
   styleUrls: ['./shop-menu-modal.component.scss'],
 })
-export class ShopMenuModalComponent implements OnInit, AfterViewInit {
+export class ShopMenuModalComponent implements OnInit {
   constructor(
     @Inject(MAT_DIALOG_DATA) public menu: Menu,
     private fb: FormBuilder,
@@ -23,11 +25,15 @@ export class ShopMenuModalComponent implements OnInit, AfterViewInit {
   ) {}
 
   formGroup = this.fb.group({});
-
   subchoices: CartItem['subchoices'] = {};
+  result$: Observable<CartItem | null> = of(null);
+  price$!: Observable<number>;
 
   ngOnInit(): void {
-    console.log('subchoices', this.menu.subchoices);
+    // menu 관련 속성 초기화
+    const { slug, price, name, id } = this.menu;
+
+    // subchoice의 종류에 따라 form group 생성
     this.menu.subchoices.forEach((subchoice) => {
       let ac: FormControl | FormArray;
       if (subchoice.multiple) {
@@ -44,50 +50,67 @@ export class ShopMenuModalComponent implements OnInit, AfterViewInit {
       // ac.updateValueAndValidity();
       this.formGroup.addControl(subchoice.slug, ac);
     });
+    this.formGroup.updateValueAndValidity();
+
+    // form group의 값에 따라 결과값 생성(rx)
+    this.result$ = this.formGroup.valueChanges.pipe(
+      startWith(this.formGroup.value),
+      map(() => {
+        /** 장바구니 결과값(items) */
+        const subchoices: CartItem['subchoices'] = {};
+        /** 현재 사용자 옵션에 따른 가격 */
+        let _price = new BigNumber(price);
+
+        // 선택하는 옵션의 종류별로 순회
+        this.menu.subchoices.forEach((group) => {
+          const { slug, name, multiple } = group;
+          // 해당하는 formControl 가져오기
+          const control = this.formGroup.get(slug);
+          // 옵션의 선택 결과값(종류에 상관없이 항상 array)
+          let items: MenuSubchoice[] = [];
+          // control vs array 경우에 items에 값 입력
+          if (control instanceof FormControl) {
+            items = (control.value as string[])?.map(
+              (slug) => group.subchoices.find((choice) => choice.slug === slug)!
+            );
+          }
+          if (control instanceof FormArray) {
+            items = (control.value as boolean[])
+              ?.filter((value) => value)
+              .map((_, idx) => group.subchoices[idx]);
+          }
+          if (items?.length > 0) {
+            // 옵션들의 가격 다 더하기
+            items.forEach(
+              (subchoice) => (_price = _price.plus(subchoice.price))
+            );
+            // subchoice 결과 오브젝트 완성하기
+            subchoices[slug] = { slug, name, multiple, items };
+          }
+        });
+
+        // 결과값 출력
+        return {
+          slug,
+          name,
+          id,
+          price: _price.toNumber(),
+          base_price: new BigNumber(price).toNumber(),
+          default_price: 0,
+          amount: 1,
+          subchoices,
+        };
+      }),
+      shareReplay(1)
+    );
+    this.price$ = this.result$.pipe(map((cart) => cart?.price ?? 0));
   }
 
-  ngAfterViewInit() {
-    // this.formGroup.updateValueAndValidity();
-  }
-
-  submit() {
-    if (this.formGroup.invalid) {
+  async submit() {
+    const result = await this.result$.pipe(take(1)).toPromise();
+    if (!result) {
       return;
     }
-
-    const { slug, price, name, id } = this.menu;
-    const subchoices: CartItem['subchoices'] = {};
-    let optionPrice = new BigNumber(0);
-    this.menu.subchoices.forEach((group) => {
-      const { slug, name, multiple } = group;
-      const control = this.formGroup.get(slug);
-      let items: MenuSubchoice[] = [];
-      if (control instanceof FormControl) {
-        items = (control.value as string[]).map(
-          (slug) => group.subchoices.find((choice) => choice.slug === slug)!
-        );
-      }
-      if (control instanceof FormArray) {
-        items = (control.value as boolean[])
-          .filter((value) => value)
-          .map((_, idx) => group.subchoices[idx]);
-      }
-      if (items?.length > 0) {
-        items.forEach((subchoice) => optionPrice.plus(subchoice.price));
-        subchoices[slug] = { slug, name, multiple, items };
-      }
-    });
-
-    const item: CartItem = {
-      slug,
-      name,
-      id,
-      price: optionPrice.plus(price).toNumber(),
-      base_price: new BigNumber(price).toNumber(),
-      default_price: 0,
-      amount: 1,
-      subchoices,
-    };
-    this.dialogRef.close(item);
+    this.dialogRef.close(result);
   }
 }

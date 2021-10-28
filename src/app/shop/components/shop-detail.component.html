@@ -1,9 +1,6 @@
-<h1>shop-detail</h1>
-<h2>직원들 난리난 장바구니 현상황</h2>
-<p>{{ cart$ | async | json }}</p>
-<h2>info</h2>
-<!-- <p>{{ info$ | async | json }}</p> -->
-<h2>menu</h2>
+<section class="header" *ngIf="info$ | async as info">
+  <h1>{{ info.name }}</h1>
+</section>
 <section class="category" *ngFor="let category of categories$ | async">
   <app-shop-menu-category [category]="category"></app-shop-menu-category>
 </section>
