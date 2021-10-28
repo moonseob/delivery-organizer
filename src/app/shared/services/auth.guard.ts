@@ -1,12 +1,15 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import {
+  ActivatedRoute,
   ActivatedRouteSnapshot,
   CanActivate,
+  Router,
   RouterStateSnapshot,
   UrlTree,
 } from '@angular/router';
-import { environment } from 'src/environments/environment';
+import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
 import { AuthService } from '../auth.service';
 
 @Injectable({
@@ -15,22 +18,18 @@ import { AuthService } from '../auth.service';
 export class AuthGuard implements CanActivate {
   constructor(
     private httpClient: HttpClient,
-    private authService: AuthService
+    private authService: AuthService,
+    private router: Router,
+    private route: ActivatedRoute
   ) {}
-  async canActivate(
+  canActivate(
     route: ActivatedRouteSnapshot,
     state: RouterStateSnapshot
-  ): Promise<boolean | UrlTree> {
-    return true;
-    const user = await this.httpClient
-      .get(`${environment.authUrl}/auth/getuser`)
-      .toPromise();
-    if (user) {
-      this.authService.setUser(user);
-      return true;
-    } else {
-      window.location.href = `${environment.authUrl}/auth/google`;
-      return false;
-    }
+  ): Observable<boolean | UrlTree> {
+    return this.authService
+      .getUser()
+      .pipe(
+        map((user) => user != null || this.router.createUrlTree(['/login']))
+      );
   }
 }

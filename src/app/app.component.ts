@@ -1,4 +1,5 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
+import { AuthService } from './shared/auth.service';
 import { CartService } from './shared/services/cart.service';
 
 @Component({
@@ -6,10 +7,15 @@ import { CartService } from './shared/services/cart.service';
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.scss'],
 })
-export class AppComponent {
-  constructor(private cartService: CartService) {}
+export class AppComponent implements OnInit {
+  constructor(
+    private cartService: CartService,
+    private authService: AuthService
+  ) {}
 
-  cart$ = this.cartService.getCart();
+  username$ = this.authService.getUsername();
 
-  async openCart() {}
+  ngOnInit() {
+    // this.authService.loadUser();
+  }
 }

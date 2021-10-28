@@ -1,4 +1,4 @@
-import { User } from 'src/app/shared/auth.service';
+import { User } from 'src/app/shared/models/user.model';
 
 export interface ShopStats {
   /** 주문 마감 시각, ISO timestamp */

@@ -3,6 +3,7 @@
     <mat-icon>home</mat-icon>
   </a>
   <div style="flex: 1 1 auto"></div>
+  <span>{{ username$ | async }}</span>
 </mat-toolbar>
 <router-outlet></router-outlet>
 <app-shopping-cart-fab></app-shopping-cart-fab>

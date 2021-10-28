@@ -7,6 +7,7 @@ import { ServiceWorkerModule } from '@angular/service-worker';
 import { MatModule } from 'src/mat.module';
 import { environment } from '../environments/environment';
 import { AppComponent } from './app.component';
+import { LoginComponent } from './shared/components/login.component';
 import { AuthGuard } from './shared/services/auth.guard';
 import { SharedModule } from './shared/shared.module';
 
@@ -15,6 +16,10 @@ const routes: Routes = [
     path: '',
     redirectTo: 'shop',
     pathMatch: 'full',
+  },
+  {
+    path: 'login',
+    component: LoginComponent,
   },
   {
     path: 'shop',

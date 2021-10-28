@@ -23,7 +23,12 @@ const app = express();
 const STORE_LIST: string[] = ['462893', '508204', '270108'];
 
 /** CORS 허용 미들웨어 */
-app.use(cors());
+app.use(
+  cors({
+    origin: 'http://localhost:4200',
+    credentials: true,
+  })
+);
 const RedisStore = connectRedis(session);
 const redisClient = redis.createClient({
   retry_strategy: (options) => {
@@ -57,7 +62,6 @@ passport.use(
       callbackURL: 'http://localhost:8253/auth/google/callback',
     },
     (accessToken, refreshToken, profile, done) => {
-      console.log(profile);
       return done(null, profile);
     }
   )
@@ -73,32 +77,42 @@ passport.deserializeUser(function (user, done) {
 app.get(
   '/auth/google',
   passport.authenticate('google', {
-    scope: ['https://www.googleapis.com/auth/plus.login'],
+    scope: [
+      'https://www.googleapis.com/auth/plus.login',
+      'https://www.googleapis.com/auth/userinfo.email',
+    ],
+    prompt: 'select_account',
   })
 );
 
 app.get(
   '/auth/google/callback',
   passport.authenticate('google', { failureRedirect: '/login' }),
-  function (req, res) {
-    console.log(req);
-    console.log(req.user);
+  (req, res) => {
     req.session.user = req.user;
     req.session.save();
-    console.log(req.sessionID);
-
-    console.log('??');
+    console.log('sessionId: ', req.sessionID);
     res.redirect(APP_URL + '/shop');
   }
 );
 
-app.get('/auth/getuser', (req, res) => {
+app.get('/api/auth/getuser', (req, res) => {
   const { user } = req.session;
   if (user) {
-    res.json(req.session.user);
+    res.json({ data: req.session.user });
   } else {
-    res.sendStatus(401);
+    res.sendStatus(200);
+    // res.sendStatus(401);
   }
+});
+
+app.get('/auth/logout', (req, res) => {
+  req.session.destroy((err) => {
+    req.logout();
+    console.error('session destroy failed: ', err);
+    res.sendStatus(500);
+  });
+  console.log('req.session: ', req.session);
 });
 
 const getFromRedis = (key: string, axiosURL: string) =>

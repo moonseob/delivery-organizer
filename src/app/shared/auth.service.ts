@@ -1,8 +1,9 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, Observable } from 'rxjs';
-
-export interface User {}
+import { BehaviorSubject, of } from 'rxjs';
+import { catchError, pluck, tap } from 'rxjs/operators';
+import { environment } from 'src/environments/environment';
+import { Profile, User } from './models/user.model';
 
 @Injectable({
   providedIn: 'root',
@@ -10,12 +11,25 @@ export interface User {}
 export class AuthService {
   constructor(private httpClient: HttpClient) {}
 
-  public sessionUser$ = new BehaviorSubject<User | null>(null);
-
-  setUser(user?: User): void {
-    this.sessionUser$.next(user ?? null);
+  private username$ = new BehaviorSubject<User['displayName']>('');
+  getUsername() {
+    return this.username$.asObservable();
   }
-  getUser(): Observable<User | null> {
-    return this.sessionUser$;
+
+  getUser() {
+    return this.httpClient
+      .get<{ data: Profile }>(`${environment.apiUrl}/auth/getuser`, {
+        withCredentials: true,
+      })
+      .pipe(
+        pluck('data'),
+        catchError(() => of(null)),
+        tap((user) => {
+          const username = user?.displayName;
+          if (username) {
+            this.username$.next(username);
+          }
+        })
+      );
   }
 }
