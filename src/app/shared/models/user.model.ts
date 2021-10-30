@@ -1,4 +1,4 @@
-export interface Profile {
+export interface _Profile {
   id: string;
   emails: {
     value: string; //
@@ -16,6 +16,12 @@ export interface Profile {
     }
   ];
   provider: 'google';
+}
+
+interface Profile {
+  id: string;
+  email: string;
+  displayName: string;
 }
 
 export type User = Profile;

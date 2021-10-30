@@ -1,16 +1,19 @@
 import axios, { AxiosResponse } from 'axios';
 import connectRedis from 'connect-redis';
 import cors from 'cors';
+import { randomUUID } from 'crypto';
 import express from 'express';
 import session from 'express-session';
 import passport from 'passport';
 import { OAuth2Strategy } from 'passport-google-oauth';
 import * as redis from 'redis';
+// import { Order } from '../app/shared/models/order.model';
 import { YOGIYO } from './constants';
 
 declare module 'express-session' {
   export interface SessionData {
     user: { [key: string]: any };
+    order: any /* Order */ | null;
   }
 }
 
@@ -89,7 +92,12 @@ app.get(
   '/auth/google/callback',
   passport.authenticate('google', { failureRedirect: '/login' }),
   (req, res) => {
-    req.session.user = req.user;
+    const user = req.user as any;
+    req.session.user = {
+      id: user.id,
+      email: user.emails[0].value,
+      displayName: user.displayName,
+    };
     req.session.save();
     console.log('sessionId: ', req.sessionID);
     res.redirect(APP_URL + '/shop');
@@ -99,18 +107,20 @@ app.get(
 app.get('/api/auth/getuser', (req, res) => {
   const { user } = req.session;
   if (user) {
-    res.json({ data: req.session.user });
+    res.json({ data: user });
   } else {
-    res.sendStatus(200);
-    // res.sendStatus(401);
+    res.sendStatus(401);
   }
 });
 
 app.get('/auth/logout', (req, res) => {
   req.session.destroy((err) => {
     req.logout();
-    console.error('session destroy failed: ', err);
-    res.sendStatus(500);
+    if (err != null) {
+      console.error('session destroy failed: ', err);
+      res.sendStatus(500);
+    }
+    res.redirect(APP_URL + '/shop');
   });
   console.log('req.session: ', req.session);
 });
@@ -152,12 +162,13 @@ app.get('/api/shop/:shopId', async (req, res) => {
       `${YOGIYO.apiHost}/v1/restaurants/${shopId}`
     );
     res.json({ data });
-  } catch (e) {
-    console.error(e);
+  } catch (err) {
+    err instanceof Error && console.error(err.message);
     res.sendStatus(500);
   }
 });
 
+/** 가게의 정보 호출 */
 app.get('/api/shop/:shopId/stats', async (req, res) => {
   res.json({
     data: {
@@ -180,8 +191,8 @@ app.get('/api/shop/:shopId/info', async (req, res) => {
       `${YOGIYO.apiHost}/v1/restaurants/${shopId}/info/`
     );
     res.json({ data });
-  } catch (e) {
-    console.error(e);
+  } catch (err) {
+    err instanceof Error && console.error(err.message);
     res.sendStatus(500);
   }
 });
@@ -200,20 +211,84 @@ app.get('/api/shop/:shopId/menu', async (req, res) => {
         '?add_photo_menu=android&add_one_dish_menu=true&order_serving_type=delivery'
     );
     res.json({ data });
-  } catch (e) {
-    console.error(e);
+  } catch (err) {
+    err instanceof Error && console.error(err.message);
     res.sendStatus(500);
   }
 });
 
 /** 장바구니 수신 */
-app.post(`/api/order`, async (req, res) => {
+app.post(`/api/order`, (req, res) => {
   try {
-    // console.log(req.headers)
-    console.log(req.body);
-    res.json({ data: 'ok' });
-  } catch (e) {
-    console.error(e);
+    const { user } = req.session;
+    const order = {
+      ...req.body,
+      uid: user!.id,
+      date: new Date().toISOString(),
+      id: randomUUID(),
+    };
+    req.session.order = order;
+    redisClient.get('orders', async (err, data) => {
+      const prev = JSON.parse(data ?? '[]');
+      redisClient.set('orders', JSON.stringify(prev.concat(order)));
+    });
+    res.json({ data: order });
+  } catch (err) {
+    err instanceof Error && console.error(err.message);
+    res.sendStatus(500);
+  }
+});
+
+/** 주문 1건 삭제 */
+app.delete('/api/order/:id', (req, res) => {
+  try {
+    redisClient.get('orders', async (err, data) => {
+      if (!data) {
+        return res.status(400).send({ error: 'order not found' });
+      }
+      const current = JSON.parse(data) as any[];
+
+      const { id } = req.params;
+      console.log(current);
+      const idx = current.findIndex((order: any /* Order */) =>
+        !!id ? order.id === id : order.uid === req.session.user!.id
+      );
+      if (idx < 0) {
+        return res.status(400).send({ error: 'order not found' });
+      }
+      current.splice(idx, 1);
+      req.session.order = null;
+      redisClient.set('orders', JSON.stringify(current));
+      res.sendStatus(200);
+    });
+  } catch (err) {
+    err instanceof Error && console.error(err.message);
+    res.sendStatus(500);
+  }
+});
+
+/** 유저별 주문 내역 */
+app.get('/api/history', (req, res) => {
+  try {
+    const { order } = req.session;
+    res.json({ data: [order].filter((x) => !!x) });
+  } catch (err) {
+    err instanceof Error && console.error(err.message);
+    res.sendStatus(500);
+  }
+});
+
+/** 전체 주문 조회 */
+app.get('/api/orders', (req, res) => {
+  try {
+    redisClient.get('orders', async (err, data) => {
+      if (!data) {
+        return res.status(400).send({ error: '주문 목록이 없음' });
+      }
+      res.json({ data: JSON.parse(data) });
+    });
+  } catch (err) {
+    err instanceof Error && console.error(err.message);
     res.sendStatus(500);
   }
 });

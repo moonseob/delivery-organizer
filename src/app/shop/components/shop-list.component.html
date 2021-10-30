@@ -1,3 +1,7 @@
+<header>
+  <h1>환영합니다, {{ username$ | async }} 님!</h1>
+  <p>오늘 주문 가능한 가게는 {{ length$ | async }}개 입니다.</p>
+</header>
 <mat-card *ngFor="let shop of list$ | async">
   <img mat-card-image [src]="shop.hero" [routerLink]="shop.id" />
   <mat-card-content>

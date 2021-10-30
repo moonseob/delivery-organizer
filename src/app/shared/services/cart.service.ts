@@ -2,11 +2,12 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { BehaviorSubject, Observable, of } from 'rxjs';
-import { catchError, map } from 'rxjs/operators';
+import { catchError, map, pluck } from 'rxjs/operators';
 import { Restaurant } from 'src/app/shop/models/shop-info.model';
 import { environment } from 'src/environments/environment';
 import { WarningMessageComponent } from '../component/warning-message.component';
 import { CartItem, UserCart } from '../models/cart.model';
+import { Order } from '../models/order.model';
 
 const initialCart = {
   restaurant_id: null,
@@ -83,6 +84,8 @@ export class CartService {
     this.cart$.next(cart);
   }
   clearCart() {
+    this.restaurantId = null;
+    this.items = [];
     this.setCart(initialCart);
   }
 
@@ -96,10 +99,32 @@ export class CartService {
 
   sendCart(body: UserCart): Observable<boolean> {
     return this.httpClient
-      .post<{ data: 'ok' }>(`${environment.apiUrl}/order`, body)
+      .post<{ data: UserCart }>(`${environment.apiUrl}/order`, body, {
+        withCredentials: true,
+      })
       .pipe(
-        map((res) => res?.data === 'ok' || false),
+        map((res) => res?.data != null || false),
         catchError(() => of(false))
       );
   }
+
+  getHistory() {
+    return this.httpClient
+      .get<{ data: Order[] }>(`${environment.apiUrl}/history`, {
+        withCredentials: true,
+      })
+      .pipe(pluck('data'));
+  }
+
+  cancelOrder(orderId: string) {
+    return this.httpClient
+      .delete<{ success: boolean }>(`${environment.apiUrl}/order/${orderId}`, {
+        withCredentials: true,
+      })
+      .pipe(pluck('success'));
+  }
+
+  // getAllOrders() {
+  //   return this.httpClient.get<{ data: Order[] }>(`${environment.apiUrl}/orders`).pipe(pluck('data'))
+  // }
 }

@@ -1,5 +1,6 @@
 import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { MatBottomSheetRef } from '@angular/material/bottom-sheet';
+import { Router } from '@angular/router';
 import BigNumber from 'bignumber.js';
 import { BehaviorSubject } from 'rxjs';
 import { shareReplay, take, tap } from 'rxjs/operators';
@@ -15,7 +16,8 @@ export class ShoppingCartComponent implements OnInit {
   constructor(
     private cartService: CartService,
     private ref: MatBottomSheetRef<ShoppingCartComponent>,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private router: Router
   ) {}
 
   count: number = 0;
@@ -47,8 +49,9 @@ export class ShoppingCartComponent implements OnInit {
       const postResult = await this.cartService.sendCart(cart).toPromise();
       if (postResult) {
         this.isLoading$.next(null);
-        // TODO: 성공 화면으로 넘어가는 로직
+        this.router.navigate(['/success']);
         this.cartService.clearCart();
+        this.ref.dismiss();
       }
     } catch (e) {
       // nothing to do...

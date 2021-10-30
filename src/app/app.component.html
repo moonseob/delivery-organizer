@@ -3,7 +3,15 @@
     <mat-icon>home</mat-icon>
   </a>
   <div style="flex: 1 1 auto"></div>
-  <span>{{ username$ | async }}</span>
+  <button mat-icon-button [matMenuTriggerFor]="menu">
+    <mat-icon>account_circle</mat-icon>
+  </button>
 </mat-toolbar>
 <router-outlet></router-outlet>
 <app-shopping-cart-fab></app-shopping-cart-fab>
+
+<mat-menu #menu="matMenu">
+  <span mat-menu-item> 로그인한 이메일: {{ email$ | async }}</span>
+  <a mat-menu-item routerLink="/history">나의 주문내역</a>
+  <a mat-menu-item [attr.href]="logoutUrl">로그아웃</a>
+</mat-menu>

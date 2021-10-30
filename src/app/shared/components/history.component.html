@@ -1,0 +1,8 @@
+<h1>나의 주문내역</h1>
+<p>{{ now | date: "yyyy/MM/dd" }}</p>
+<section *ngFor="let history of history$ | async">
+  <p>{{ history | json }}</p>
+  <button mat-flat-button color="error" (click)="remove(history.id)">
+    삭제
+  </button>
+</section>

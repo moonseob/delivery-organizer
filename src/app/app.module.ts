@@ -7,7 +7,9 @@ import { ServiceWorkerModule } from '@angular/service-worker';
 import { MatModule } from 'src/mat.module';
 import { environment } from '../environments/environment';
 import { AppComponent } from './app.component';
+import { HistoryComponent } from './shared/components/history.component';
 import { LoginComponent } from './shared/components/login.component';
+import { OrderSuccessComponent } from './shared/components/order-success.component';
 import { AuthGuard } from './shared/services/auth.guard';
 import { SharedModule } from './shared/shared.module';
 
@@ -20,6 +22,14 @@ const routes: Routes = [
   {
     path: 'login',
     component: LoginComponent,
+  },
+  {
+    path: 'success',
+    component: OrderSuccessComponent,
+  },
+  {
+    path: 'history',
+    component: HistoryComponent,
   },
   {
     path: 'shop',

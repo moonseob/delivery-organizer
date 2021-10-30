@@ -10,6 +10,7 @@ import {
   shareReplay,
   tap,
 } from 'rxjs/operators';
+import { AuthService } from 'src/app/shared/auth.service';
 import { ShopStats } from '../models/shop-stats.model';
 import { ShopApiService } from '../services/shop-api.service';
 
@@ -29,7 +30,10 @@ interface ShopInfoUI extends ShopStats {
   styleUrls: ['./shop-list.component.scss'],
 })
 export class ShopListComponent implements OnInit {
-  constructor(private apiService: ShopApiService) {}
+  constructor(
+    private apiService: ShopApiService,
+    private authService: AuthService
+  ) {}
 
   getRemainingTime(due: string): string | number {
     return dayjs().diff(due, 'm').toString();
@@ -57,6 +61,10 @@ export class ShopListComponent implements OnInit {
     scan((acc, cur) => acc.concat(cur), [] as ShopInfoUI[]),
     shareReplay(1)
   );
+
+  length$ = this.list$.pipe(map((list) => list?.length ?? 0));
+
+  username$ = this.authService.getUsername();
 
   ngOnInit(): void {}
 }
