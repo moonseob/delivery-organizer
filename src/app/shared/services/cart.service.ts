@@ -123,8 +123,4 @@ export class CartService {
       })
       .pipe(pluck('success'));
   }
-
-  // getAllOrders() {
-  //   return this.httpClient.get<{ data: Order[] }>(`${environment.apiUrl}/orders`).pipe(pluck('data'))
-  // }
 }

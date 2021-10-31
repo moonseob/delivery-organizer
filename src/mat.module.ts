@@ -13,6 +13,7 @@ import {
   MAT_DIALOG_DEFAULT_OPTIONS,
 } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
+import { MatListModule } from '@angular/material/list';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatRadioModule } from '@angular/material/radio';
 import { MatToolbarModule } from '@angular/material/toolbar';
@@ -27,6 +28,7 @@ const modules = [
   MatIconModule,
   MatBottomSheetModule,
   MatMenuModule,
+  MatListModule,
 ];
 
 @NgModule({

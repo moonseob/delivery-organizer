@@ -9,6 +9,7 @@ import { ShopMenuCardComponent } from './components/shop-menu-card.component';
 import { ShopMenuCategoryComponent } from './components/shop-menu-category.component';
 import { ShopMenuModalComponent } from './components/shop-menu-modal.component';
 import { ShopMenuSubchoiceFormComponent } from './components/shop-menu-subchoice-form.component';
+import { ShopMenuOrderedModalComponent } from './components/shop-menu-ordered-modal.component';
 
 @NgModule({
   declarations: [
@@ -18,6 +19,7 @@ import { ShopMenuSubchoiceFormComponent } from './components/shop-menu-subchoice
     ShopMenuCardComponent,
     ShopMenuModalComponent,
     ShopMenuSubchoiceFormComponent,
+    ShopMenuOrderedModalComponent,
   ],
   imports: [
     CommonModule,

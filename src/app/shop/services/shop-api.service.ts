@@ -23,7 +23,9 @@ export class ShopApiService {
   /** 가게별 주문 현황 */
   getStats(shopId: string) {
     return this.httpClient
-      .get<{ data: ShopStats }>(`${environment.apiUrl}/shop/${shopId}/stats`)
+      .get<{ data: ShopStats }>(`${environment.apiUrl}/shop/${shopId}/stats`, {
+        withCredentials: true,
+      })
       .pipe(pluck('data'));
   }
 

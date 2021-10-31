@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { MatDialog } from '@angular/material/dialog';
 import dayjs from 'dayjs';
 import duration from 'dayjs/plugin/duration';
 import { combineLatest, from } from 'rxjs';
@@ -13,6 +14,7 @@ import {
 import { AuthService } from 'src/app/shared/auth.service';
 import { ShopStats } from '../models/shop-stats.model';
 import { ShopApiService } from '../services/shop-api.service';
+import { ShopMenuOrderedModalComponent } from './shop-menu-ordered-modal.component';
 
 dayjs.extend(duration);
 
@@ -32,11 +34,16 @@ interface ShopInfoUI extends ShopStats {
 export class ShopListComponent implements OnInit {
   constructor(
     private apiService: ShopApiService,
-    private authService: AuthService
+    private authService: AuthService,
+    private dialog: MatDialog
   ) {}
 
   getRemainingTime(due: string): string | number {
     return dayjs().diff(due, 'm').toString();
+  }
+
+  viewOrdered(data: ShopStats['ordered_users']) {
+    this.dialog.open(ShopMenuOrderedModalComponent, { data });
   }
 
   list$ = this.apiService.getList().pipe(

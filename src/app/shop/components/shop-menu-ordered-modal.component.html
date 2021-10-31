@@ -1,0 +1,10 @@
+<h1 mat-dialog-title>이 메뉴를 주문한 사람</h1>
+<section mat-dialog-content>
+  <div mat-subheader>합계 {{ users.length }}명</div>
+  <mat-list>
+    <mat-list-item *ngFor="let user of users">
+      <mat-icon mat-list-icon>person</mat-icon>
+      <div mat-line>{{ user.displayName }}</div>
+    </mat-list-item>
+  </mat-list>
+</section>

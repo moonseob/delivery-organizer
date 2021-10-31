@@ -36,6 +36,11 @@ const routes: Routes = [
     canActivate: [AuthGuard],
     loadChildren: async () => (await import('./shop/shop.module')).ShopModule,
   },
+  {
+    path: 'admin',
+    loadChildren: async () =>
+      (await import('./admin/admin.module')).AdminModule,
+  },
 ];
 
 @NgModule({

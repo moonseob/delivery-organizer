@@ -7,6 +7,7 @@ import session from 'express-session';
 import passport from 'passport';
 import { OAuth2Strategy } from 'passport-google-oauth';
 import * as redis from 'redis';
+import { promisify } from 'util';
 // import { Order } from '../app/shared/models/order.model';
 import { YOGIYO } from './constants';
 
@@ -40,12 +41,18 @@ const redisClient = redis.createClient({
     return Math.min(options.attempt * 100, 3000); // 100ms
   },
 });
+const redisClientGetAsync = promisify(redisClient.get).bind(redisClient);
+const MAX_AGE = 86400; // seconds, 1일
 
 /** session 설정 */
 app.use(
   session({
-    store: new RedisStore({ client: redisClient }),
+    store: new RedisStore({
+      client: redisClient,
+      prefix: 'session:',
+    }),
     secret: 'com.pizza.combination.jp',
+    cookie: { maxAge: MAX_AGE * 1000 },
     resave: true,
     saveUninitialized: true,
   })
@@ -92,14 +99,14 @@ app.get(
   '/auth/google/callback',
   passport.authenticate('google', { failureRedirect: '/login' }),
   (req, res) => {
-    const user = req.user as any;
-    req.session.user = {
-      id: user.id,
-      email: user.emails[0].value,
-      displayName: user.displayName,
+    const user = {
+      id: (req.user as any).id,
+      email: (req.user as any).emails[0].value,
+      displayName: (req.user as any).displayName,
     };
+    req.session.user = user;
     req.session.save();
-    console.log('sessionId: ', req.sessionID);
+    redisClient.set(`user:${user.id}`, JSON.stringify(user));
     res.redirect(APP_URL + '/shop');
   }
 );
@@ -114,6 +121,7 @@ app.get('/api/auth/getuser', (req, res) => {
 });
 
 app.get('/auth/logout', (req, res) => {
+  console.log('log out from: ', req.session.id);
   req.session.destroy((err) => {
     req.logout();
     if (err != null) {
@@ -138,7 +146,7 @@ const getFromRedis = (key: string, axiosURL: string) =>
         const response: AxiosResponse = await axios.get(axiosURL, {
           headers: YOGIYO.httpHeader,
         });
-        redisClient.setex(key, 86400, JSON.stringify(response.data));
+        redisClient.setex(key, MAX_AGE, JSON.stringify(response.data));
         console.log('redis에 저장 성공: ', key);
         resolve(response.data);
       }
@@ -156,7 +164,7 @@ app.get('/api/shop/:shopId', async (req, res) => {
     if (req.params.shopId == null) {
       res.sendStatus(400);
     }
-    const key = `shop.${shopId}`;
+    const key = `shop:${shopId}`;
     const data = await getFromRedis(
       key,
       `${YOGIYO.apiHost}/v1/restaurants/${shopId}`
@@ -168,12 +176,36 @@ app.get('/api/shop/:shopId', async (req, res) => {
   }
 });
 
+async function getUser(uid: string) {
+  try {
+    const a = await redisClientGetAsync(`user:${uid}`);
+    console.log(a);
+    return a;
+  } catch (err) {
+    err instanceof Error && console.error(err.message);
+    return null;
+  }
+}
+
 /** 가게의 정보 호출 */
 app.get('/api/shop/:shopId/stats', async (req, res) => {
+  const { shopId } = req.params;
+  const orders = await redisClientGetAsync('orders');
+  const ordered_users = (
+    orders != null
+      ? await Promise.all(
+          (JSON.parse(orders) as any[])
+            .filter((order) => order.restaurant_id.toString() === shopId)
+            .map((order) => getUser(order.uid))
+        )
+      : []
+  )
+    .filter((user) => user != null)
+    .map((user) => JSON.parse(user!));
   res.json({
     data: {
       due: '2021-10-25T15:00:00+09:00',
-      ordered_users: ['a', 'b', 'c'],
+      ordered_users,
     },
   }); // DEBUG
 });
@@ -185,7 +217,7 @@ app.get('/api/shop/:shopId/info', async (req, res) => {
     if (req.params.shopId == null) {
       res.sendStatus(400);
     }
-    const key = `info.${shopId}`;
+    const key = `info:${shopId}`;
     const data = await getFromRedis(
       key,
       `${YOGIYO.apiHost}/v1/restaurants/${shopId}/info/`
@@ -204,7 +236,7 @@ app.get('/api/shop/:shopId/menu', async (req, res) => {
     if (req.params.shopId == null) {
       res.sendStatus(400);
     }
-    const key = `menu.${shopId}`;
+    const key = `menu:${shopId}`;
     const data = await getFromRedis(
       key,
       `${YOGIYO.apiHost}/v1/restaurants/${shopId}/menu/` +
@@ -268,10 +300,14 @@ app.delete('/api/order/:id', (req, res) => {
 });
 
 /** 유저별 주문 내역 */
-app.get('/api/history', (req, res) => {
+app.get('/api/history', async (req, res) => {
   try {
-    const { order } = req.session;
-    res.json({ data: [order].filter((x) => !!x) });
+    const orders = await redisClientGetAsync('orders');
+    const uid = req.session.user?.id;
+    const data = orders
+      ? JSON.parse(orders).filter((odr: any) => odr.uid === uid)
+      : [];
+    res.json({ data });
   } catch (err) {
     err instanceof Error && console.error(err.message);
     res.sendStatus(500);

@@ -22,6 +22,12 @@
   </mat-card-content>
   <mat-card-actions>
     <a [routerLink]="shop.id" mat-raised-button color="primary">메뉴 확인</a>
-    <button mat-stroked-button color="primary">주문한 사람들</button>
+    <button
+      mat-stroked-button
+      color="primary"
+      (click)="viewOrdered(shop.ordered_users)"
+    >
+      주문한 사람들
+    </button>
   </mat-card-actions>
 </mat-card>
