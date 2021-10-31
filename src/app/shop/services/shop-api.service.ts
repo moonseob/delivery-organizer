@@ -14,9 +14,9 @@ export class ShopApiService {
   constructor(private httpClient: HttpClient) {}
 
   /** 오늘의 가게 목록 */
-  getList() {
+  getShops() {
     return this.httpClient
-      .get<{ data: string[] }>(`${environment.apiUrl}/shop`)
+      .get<{ data: ShopStats[] }>(`${environment.apiUrl}/shops`)
       .pipe(pluck('data'));
   }
 

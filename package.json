@@ -23,6 +23,7 @@
     "@angular/service-worker": "~12.2.11",
     "bignumber.js": "^9.0.1",
     "dayjs": "^1.10.7",
+    "ngx-clipboard": "^14.0.1",
     "normalize.css": "^8.0.1",
     "rxjs": "~6.6.0",
     "tslib": "^2.3.0",

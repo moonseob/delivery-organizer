@@ -24,7 +24,12 @@ const APP_URL = `//localhost:4200`;
 const PORT = 8253;
 const app = express();
 
-const STORE_LIST: string[] = ['462893', '508204', '270108'];
+let STORE_LIST: { id: string; due: string }[] = [
+  { id: '475929', due: new Date().toISOString() },
+  { id: '462893', due: new Date().toISOString() },
+  { id: '508204', due: new Date().toISOString() },
+  { id: '270108', due: new Date().toISOString() },
+];
 
 /** CORS 허용 미들웨어 */
 app.use(
@@ -153,8 +158,23 @@ const getFromRedis = (key: string, axiosURL: string) =>
     })
   );
 
-app.get('/api/shop', (req, res) => {
-  res.json({ data: STORE_LIST });
+app.get('/api/shops', async (req, res) => {
+  const orders = JSON.parse((await redisClientGetAsync('orders')) ?? '');
+  const data = await Promise.all(
+    STORE_LIST.map(async ({ id, due }) => {
+      const uids = orders
+        .filter((order: any) => order.restaurant_id === id)
+        .map((order: any) => order.uid);
+      return {
+        id,
+        due,
+        ordered_users: await Promise.all(
+          uids.map((uid: string) => getUser(uid))
+        ),
+      };
+    })
+  );
+  res.json({ data });
 });
 
 /** 가게 기본 정보 호출 */
@@ -291,7 +311,7 @@ app.delete('/api/order/:id', (req, res) => {
       current.splice(idx, 1);
       req.session.order = null;
       redisClient.set('orders', JSON.stringify(current));
-      res.sendStatus(200);
+      res.json({ success: true });
     });
   } catch (err) {
     err instanceof Error && console.error(err.message);
@@ -327,6 +347,14 @@ app.get('/api/orders', (req, res) => {
     err instanceof Error && console.error(err.message);
     res.sendStatus(500);
   }
+});
+
+/** 가게 목록 업데이트 */
+app.post('/api/admin/shop_list', (req, res) => {
+  const { data } = req.body;
+  console.log(data.data);
+  STORE_LIST = data.data;
+  res.sendStatus(200);
 });
 
 app.listen(PORT, () => {

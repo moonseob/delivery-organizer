@@ -12,7 +12,9 @@ import {
   MatDialogModule,
   MAT_DIALOG_DEFAULT_OPTIONS,
 } from '@angular/material/dialog';
+import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
+import { MatInputModule } from '@angular/material/input';
 import { MatListModule } from '@angular/material/list';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatRadioModule } from '@angular/material/radio';
@@ -29,6 +31,8 @@ const modules = [
   MatBottomSheetModule,
   MatMenuModule,
   MatListModule,
+  MatInputModule,
+  MatFormFieldModule,
 ];
 
 @NgModule({

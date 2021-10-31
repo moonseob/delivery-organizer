@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import dayjs from 'dayjs';
 import duration from 'dayjs/plugin/duration';
-import { combineLatest, from } from 'rxjs';
+import { from } from 'rxjs';
 import {
   distinctUntilChanged,
   map,
@@ -23,7 +23,6 @@ interface ShopInfoUI extends ShopStats {
   thumb: string;
   hero: string;
   eta: string;
-  id: number;
 }
 
 @Component({
@@ -46,23 +45,20 @@ export class ShopListComponent implements OnInit {
     this.dialog.open(ShopMenuOrderedModalComponent, { data });
   }
 
-  list$ = this.apiService.getList().pipe(
+  list$ = this.apiService.getShops().pipe(
     mergeMap((list) => from(list)),
     distinctUntilChanged(),
-    mergeMap((shopId) =>
-      combineLatest([
-        this.apiService.getInfo(shopId).pipe(
-          map((res) => ({
-            id: res.id,
-            name: res.name,
-            thumb: res.logo_url,
-            hero: res.background_url,
-            eta: res.estimated_delivery_time,
-          })),
-          shareReplay(1)
-        ),
-        this.apiService.getStats(shopId),
-      ]).pipe(map(([info, stats]) => ({ ...info, ...stats })))
+    mergeMap((shopData) =>
+      this.apiService.getInfo(shopData.id).pipe(
+        map((res) => ({
+          id: res.id,
+          name: res.name,
+          thumb: res.logo_url,
+          hero: res.background_url,
+          eta: res.estimated_delivery_time,
+        })),
+        map((info) => ({ ...info, ...shopData }))
+      )
     ),
     tap((x) => console.log(x)),
     scan((acc, cur) => acc.concat(cur), [] as ShopInfoUI[]),

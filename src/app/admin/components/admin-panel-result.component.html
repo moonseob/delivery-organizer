@@ -1,0 +1,26 @@
+<h3>가게 코드: {{ key }}</h3>
+<br />
+<a target="_blank" attr.href="https://www.yogiyo.co.kr/mobile/#/{{ key }}"
+  >요기요 주문 페이지로 이동</a
+><br />
+<mat-form-field appearance="fill">
+  <mat-label>장바구니 raw data</mat-label>
+  <textarea matInput readonly #inputTarget>{{ data | json }}</textarea>
+</mat-form-field>
+<section>
+  <button
+    mat-raised-button
+    [ngxClipboard]="inputTarget"
+    (cbOnSuccess)="copied($event)"
+  >
+    장바구니 복사
+  </button>
+  <button
+    mat-raised-button
+    ngxClipboard
+    [cbContent]="resultCode"
+    (cbOnSuccess)="copied($event)"
+  >
+    장바구니 수정 코드 복사
+  </button>
+</section>

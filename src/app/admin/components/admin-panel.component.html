@@ -1,3 +1,29 @@
 <p>admin-panel works!</p>
-
-<p>{{ cartData$ | async | json }}</p>
+<h1>관리자 페이지</h1>
+<h2>가게 목록 업데이트</h2>
+<button mat-flat-button color="primary" (click)="newShop()">
+  <mat-icon>add</mat-icon> 가게 추가하기
+</button>
+<div *ngFor="let fg of formArray.controls; index as i" [formGroup]="fg">
+  {{ i }}
+  <mat-form-field appearance="fill">
+    <mat-label>가게 ID</mat-label>
+    <input matInput formControlName="id" />
+  </mat-form-field>
+  <mat-form-field appearance="fill">
+    <mat-label>주문 종료 일시</mat-label>
+    <input matInput formControlName="due" />
+  </mat-form-field>
+  <button mat-stroked-button color="error" (click)="removeShop(i)">
+    <mat-icon>delete</mat-icon>
+  </button>
+</div>
+<p>{{ formArray.value | json }}</p>
+<button (click)="updateShops()">가게 목록 업데이트</button>
+<h2>장바구니 조회</h2>
+<mat-card *ngFor="let key of cartKeys$ | async">
+  <app-admin-panel-result
+    [key]="key"
+    [data]="getCart(key) | async"
+  ></app-admin-panel-result>
+</mat-card>
