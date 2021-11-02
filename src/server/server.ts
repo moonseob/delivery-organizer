@@ -159,7 +159,8 @@ const getFromRedis = (key: string, axiosURL: string) =>
   );
 
 app.get('/api/shops', async (req, res) => {
-  const orders = JSON.parse((await redisClientGetAsync('orders')) ?? '');
+  const onRedis = await redisClientGetAsync('orders');
+  const orders = JSON.parse(onRedis ?? '[]');
   const data = await Promise.all(
     STORE_LIST.map(async ({ id, due }) => {
       const uids = orders
