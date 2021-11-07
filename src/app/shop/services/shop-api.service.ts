@@ -1,5 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
+import { EMPTY } from 'rxjs';
 import { pluck } from 'rxjs/operators';
 import { environment } from 'src/environments/environment';
 import { ShopDetailedInfo } from '../models/shop-detailed-info.model';
@@ -31,6 +32,9 @@ export class ShopApiService {
 
   /** 가게의 기본 정보 */
   getInfo(shopId: string) {
+    if (!shopId) {
+      return EMPTY;
+    }
     return this.httpClient
       .get<{ data: Restaurant }>(`${environment.apiUrl}/shop/${shopId}`)
       .pipe(pluck('data'));

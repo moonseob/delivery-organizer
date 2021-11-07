@@ -1,7 +1,19 @@
-<h1>나의 주문내역</h1>
-<p>{{ now | date: "yyyy/MM/dd" }}</p>
-<section *ngFor="let history of history$ | async">
-  <p>{{ history | json }}</p>
+<section class="header">
+  <h1>나의 주문내역</h1>
+</section>
+<p class="date">{{ now | date: "yyyy/MM/dd" }}</p>
+<section *ngFor="let history of history$ | async" style="margin-bottom: 3em">
+  <h2>{{ history.name }}</h2>
+  <p>{{ history.date | date: "full" }}</p>
+  <mat-card *ngFor="let item of history.items" style="margin-bottom: 1em">
+    <p>{{ item.name }}</p>
+    <p>{{ item.price | currency }}</p>
+    <ul>
+      <li *ngFor="let sub of item.subchoices_array">
+        {{ sub.name }}&nbsp;(+{{ sub.price | currency }})
+      </li>
+    </ul>
+  </mat-card>
   <button mat-flat-button color="error" (click)="remove(history.id)">
     삭제
   </button>

@@ -1,6 +1,6 @@
 <header>
   <h1>환영합니다, {{ username$ | async }} 님!</h1>
-  <p>오늘 주문 가능한 가게는 {{ length$ | async }}개 입니다.</p>
+  <p>오늘 주문 가능한 가게는 {{ (length$ | async) ?? 0 }}개 입니다.</p>
 </header>
 <mat-card *ngFor="let shop of list$ | async">
   <img mat-card-image [src]="shop.hero" [routerLink]="shop.id" />
@@ -8,8 +8,8 @@
     <h3 [routerLink]="shop.id">{{ shop.name }}</h3>
     <div>
       <p>이 메뉴는</p>
-      <span class="prop" *ngIf="shop.due as due"
-        ><mat-icon>timer</mat-icon> 주문 마감까지 {{ getRemainingTime(due) }}분
+      <span class="prop" *ngIf="shop.remaining as remaining"
+        ><mat-icon>timer</mat-icon> 주문 마감까지 {{ remaining }}분
         남았어요</span
       >
       <span class="prop" *ngIf="shop.eta as eta"

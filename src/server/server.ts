@@ -25,7 +25,7 @@ const PORT = 8253;
 const app = express();
 
 let STORE_LIST: { id: string; due: string }[] = [
-  { id: '475929', due: new Date().toISOString() },
+  { id: '344991', due: new Date().toISOString() },
   { id: '462893', due: new Date().toISOString() },
   { id: '508204', due: new Date().toISOString() },
   { id: '270108', due: new Date().toISOString() },
@@ -159,19 +159,23 @@ const getFromRedis = (key: string, axiosURL: string) =>
   );
 
 app.get('/api/shops', async (req, res) => {
-  const onRedis = await redisClientGetAsync('orders');
-  const orders = JSON.parse(onRedis ?? '[]');
+  const orders: any[] = JSON.parse(
+    (await redisClientGetAsync('orders')) ?? '[]'
+  );
+  const shops: any[] = JSON.parse((await redisClientGetAsync('shops')) ?? '[]');
   const data = await Promise.all(
-    STORE_LIST.map(async ({ id, due }) => {
+    shops.map(async ({ id, due }) => {
       const uids = orders
-        .filter((order: any) => order.restaurant_id === id)
+        .filter(
+          (order: any) => order.restaurant_id.toString() === id.toString()
+        )
         .map((order: any) => order.uid);
       return {
         id,
         due,
-        ordered_users: await Promise.all(
-          uids.map((uid: string) => getUser(uid))
-        ),
+        ordered_users: (
+          await Promise.all(uids.map((uid: string) => getUser(uid)))
+        ).map((x) => JSON.parse(x as string)),
       };
     })
   );
@@ -199,37 +203,30 @@ app.get('/api/shop/:shopId', async (req, res) => {
 
 async function getUser(uid: string) {
   try {
-    const a = await redisClientGetAsync(`user:${uid}`);
-    console.log(a);
-    return a;
+    const user = await redisClientGetAsync(`user:${uid}`);
+    return user;
   } catch (err) {
     err instanceof Error && console.error(err.message);
     return null;
   }
 }
 
-/** 가게의 정보 호출 */
-app.get('/api/shop/:shopId/stats', async (req, res) => {
-  const { shopId } = req.params;
-  const orders = await redisClientGetAsync('orders');
-  const ordered_users = (
-    orders != null
-      ? await Promise.all(
-          (JSON.parse(orders) as any[])
-            .filter((order) => order.restaurant_id.toString() === shopId)
-            .map((order) => getUser(order.uid))
-        )
-      : []
-  )
-    .filter((user) => user != null)
-    .map((user) => JSON.parse(user!));
-  res.json({
-    data: {
-      due: '2021-10-25T15:00:00+09:00',
-      ordered_users,
-    },
-  }); // DEBUG
-});
+// /** 가게의 정보 호출 */
+// app.get('/api/shop/:shopId/stats', async (req, res) => {
+//   const { shopId } = req.params;
+//   const orders = await redisClientGetAsync('orders');
+//   const ordered_users = (
+//     orders != null
+//       ? await Promise.all(
+//           (JSON.parse(orders) as any[])
+//             .filter((order) => order.restaurant_id.toString() === shopId)
+//             .map((order) => getUser(order.uid))
+//         )
+//       : []
+//   )
+//     .filter((user) => user != null)
+//     .map((user) => JSON.parse(user!));
+// });
 
 /** 가게 정보 호출 */
 app.get('/api/shop/:shopId/info', async (req, res) => {
@@ -352,10 +349,13 @@ app.get('/api/orders', (req, res) => {
 
 /** 가게 목록 업데이트 */
 app.post('/api/admin/shop_list', (req, res) => {
-  const { data } = req.body;
-  console.log(data.data);
-  STORE_LIST = data.data;
-  res.sendStatus(200);
+  try {
+    const { data } = req.body;
+    redisClient.set('shops', JSON.stringify(data));
+    res.send({ success: true });
+  } catch (err) {
+    res.sendStatus(500);
+  }
 });
 
 app.listen(PORT, () => {

@@ -37,10 +37,6 @@ export class ShopListComponent implements OnInit {
     private dialog: MatDialog
   ) {}
 
-  getRemainingTime(due: string): string | number {
-    return dayjs().diff(due, 'm').toString();
-  }
-
   viewOrdered(data: ShopStats['ordered_users']) {
     this.dialog.open(ShopMenuOrderedModalComponent, { data });
   }
@@ -50,14 +46,26 @@ export class ShopListComponent implements OnInit {
     distinctUntilChanged(),
     mergeMap((shopData) =>
       this.apiService.getInfo(shopData.id).pipe(
-        map((res) => ({
-          id: res.id,
-          name: res.name,
-          thumb: res.logo_url,
-          hero: res.background_url,
-          eta: res.estimated_delivery_time,
-        })),
-        map((info) => ({ ...info, ...shopData }))
+        // map((res) => ({
+        //   id: res.id,
+        //   name: res.name,
+        //   thumb: res.logo_url,
+        //   hero: res.background_url,
+        //   eta: res.estimated_delivery_time,
+        // })),
+        map((res) => {
+          const info = {
+            id: res.id,
+            name: res.name,
+            thumb: res.logo_url,
+            hero: res.background_url,
+            eta: res.estimated_delivery_time,
+            remaining: shopData.due
+              ? dayjs(shopData.due).diff(undefined, 'minutes') + 1
+              : null,
+          };
+          return { ...info, ...shopData };
+        })
       )
     ),
     tap((x) => console.log(x)),

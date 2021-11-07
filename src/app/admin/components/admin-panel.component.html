@@ -1,29 +1,50 @@
-<p>admin-panel works!</p>
 <h1>관리자 페이지</h1>
 <h2>가게 목록 업데이트</h2>
 <button mat-flat-button color="primary" (click)="newShop()">
   <mat-icon>add</mat-icon> 가게 추가하기
 </button>
-<div *ngFor="let fg of formArray.controls; index as i" [formGroup]="fg">
-  {{ i }}
-  <mat-form-field appearance="fill">
+<div
+  *ngFor="let fg of formArray.controls; index as i"
+  [formGroup]="fg"
+  class="ff-group"
+>
+  <mat-form-field appearance="fill" class="form-field-name">
     <mat-label>가게 ID</mat-label>
     <input matInput formControlName="id" />
   </mat-form-field>
-  <mat-form-field appearance="fill">
+  <mat-form-field appearance="fill" class="form-field-due">
     <mat-label>주문 종료 일시</mat-label>
-    <input matInput formControlName="due" />
+    <input matInput type="datetime-local" formControlName="due" />
   </mat-form-field>
-  <button mat-stroked-button color="error" (click)="removeShop(i)">
+  <button
+    type="button"
+    mat-stroked-button
+    color="error"
+    (click)="removeShop(i)"
+  >
     <mat-icon>delete</mat-icon>
   </button>
 </div>
 <p>{{ formArray.value | json }}</p>
-<button (click)="updateShops()">가게 목록 업데이트</button>
+<button type="button" mat-raised-button color="warn" (click)="updateShops()">
+  가게 목록 업데이트
+</button>
+<h2>주소 입력</h2>
+<form [formGroup]="addressGroup">
+  <mat-form-field appearance="fill" class="form-field-address">
+    <mat-label>기본 주소</mat-label>
+    <input matInput formControlName="address" />
+  </mat-form-field>
+  <mat-form-field appearance="fill" class="form-field-address">
+    <mat-label>우편번호(6자리)</mat-label>
+    <input matInput formControlName="zipcode" />
+  </mat-form-field>
+</form>
 <h2>장바구니 조회</h2>
 <mat-card *ngFor="let key of cartKeys$ | async">
   <app-admin-panel-result
-    [key]="key"
+    [address]="addressGroup.value"
+    [shopId]="key"
     [data]="getCart(key) | async"
   ></app-admin-panel-result>
 </mat-card>

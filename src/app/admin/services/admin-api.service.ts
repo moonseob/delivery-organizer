@@ -4,7 +4,7 @@ import { map, pluck } from 'rxjs/operators';
 import { Order } from 'src/app/shared/models/order.model';
 import { environment } from 'src/environments/environment';
 
-interface ShopData {
+export interface ShopData {
   /** shop id */
   id: string;
   /** 주문 마감시간 */
@@ -20,7 +20,7 @@ export class AdminApiService {
   updateShopList(data: ShopData[]) {
     return this.httpClient
       .post<{ success: boolean }>(`${environment.apiUrl}/admin/shop_list`, {
-        data: { data },
+        data,
       })
       .pipe(pluck('success'));
   }

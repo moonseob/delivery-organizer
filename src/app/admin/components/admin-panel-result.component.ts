@@ -1,5 +1,10 @@
 import { Component, Input, OnInit } from '@angular/core';
-import { CartItem } from 'src/app/shared/models/cart.model';
+import {
+  Cart,
+  CartItem,
+  CheckoutAddress,
+} from 'src/app/shared/models/cart.model';
+import { ShopApiService } from 'src/app/shop/services/shop-api.service';
 
 @Component({
   selector: 'app-admin-panel-result',
@@ -7,21 +12,47 @@ import { CartItem } from 'src/app/shared/models/cart.model';
   styleUrls: ['./admin-panel-result.component.scss'],
 })
 export class AdminPanelResultComponent implements OnInit {
-  constructor() {}
+  constructor(private service: ShopApiService) {}
 
-  @Input() key!: string;
+  @Input() shopId!: string;
+  @Input() address!: CheckoutAddress;
   @Input() data!: CartItem[];
 
   resultCode = '';
 
-  ngOnInit(): void {
+  async getCodeString(key: string): Promise<Cart> {
+    let existingCart: any = {};
+    try {
+      existingCart = JSON.parse(sessionStorage.getItem(key) || '{}');
+    } catch (err) {
+      console.warn(err);
+    }
+    const restaurant_id = Number(this.shopId);
+    const isSameOrigin = existingCart?.restaurant_id === restaurant_id;
+    const restaurant = isSameOrigin
+      ? existingCart.restaurant
+      : await this.service.getInfo(this.shopId).toPromise();
+    const restaurant_name = restaurant.name;
+    const items = (isSameOrigin ? existingCart.items : []).concat(this.data);
+    // const
+    return {
+      restaurant_id,
+      restaurant,
+      restaurant_name,
+      checkout_address: this.address,
+      items,
+      default_price: 0, // DEBUG
+    };
+  }
+
+  async ngOnInit() {
     const ssKey = 'ngStorage-cart';
-    console.log(this.data);
+    const next = await this.getCodeString(ssKey);
     this.resultCode = `
     (function(){
-      const prev = JSON.parse(sessionStorage.getItem('${ssKey}') || '{}');
-      const next = { ...prev, items: ${JSON.stringify(this.data)}}
-      sessionStorage.setItem('${ssKey}', JSON.stringify(next));
+      sessionStorage.setItem('${ssKey}', JSON.stringify(${JSON.stringify(
+      next
+    )}));location.reload();
     })()
     `;
   }

@@ -1,3 +1,25 @@
 .mat-card {
   margin-bottom: 24px;
 }
+
+h2 {
+  margin-top: 2em;
+}
+
+.form-field-name {
+  width: 100px;
+}
+.form-field-due {
+  width: 240px;
+}
+.form-field-address {
+  width: 100%;
+}
+
+.ff-group {
+  display: flex;
+  align-items: center;
+}
+.mat-form-field {
+  margin-right: 1em;
+}
