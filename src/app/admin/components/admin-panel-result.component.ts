@@ -1,9 +1,5 @@
 import { Component, Input, OnInit } from '@angular/core';
-import {
-  Cart,
-  CartItem,
-  CheckoutAddress,
-} from 'src/app/shared/models/cart.model';
+import { CartItem, CheckoutAddress } from 'src/app/shared/models/cart.model';
 import { ShopApiService } from 'src/app/shop/services/shop-api.service';
 
 @Component({
@@ -20,41 +16,49 @@ export class AdminPanelResultComponent implements OnInit {
 
   resultCode = '';
 
-  async getCodeString(key: string): Promise<Cart> {
-    let existingCart: any = {};
-    try {
-      existingCart = JSON.parse(sessionStorage.getItem(key) || '{}');
-    } catch (err) {
-      console.warn(err);
-    }
-    const restaurant_id = Number(this.shopId);
-    const isSameOrigin = existingCart?.restaurant_id === restaurant_id;
-    const restaurant = isSameOrigin
-      ? existingCart.restaurant
-      : await this.service.getInfo(this.shopId).toPromise();
-    const restaurant_name = restaurant.name;
-    const items = (isSameOrigin ? existingCart.items : []).concat(this.data);
-    // const
-    return {
-      restaurant_id,
-      restaurant,
-      restaurant_name,
-      checkout_address: this.address,
-      items,
-      default_price: 0, // DEBUG
-    };
-  }
-
   async ngOnInit() {
     const ssKey = 'ngStorage-cart';
-    const next = await this.getCodeString(ssKey);
+    // this.getCodeString(ssKey)
     this.resultCode = `
-    (function(){
-      sessionStorage.setItem('${ssKey}', JSON.stringify(${JSON.stringify(
-      next
-    )}));location.reload();
-    })()
-    `;
+    const cartItemReducer = (acc, cur) => {
+      console.log('acc: ', acc, 'cur: ', cur)
+      const match = acc.findIndex(
+        (item) =>
+          item.slug === cur.slug &&
+          JSON.stringify(item.subchoices) === JSON.stringify(cur.subchoices),
+      );
+      console.log('match: ', match);
+      if (match >= 0) {
+        const prev = acc[match];
+        acc[match] = { ...prev, amount: prev.amount + 1 };
+      } else {
+        acc = acc.concat({ ...cur, id_for_stock: new Date().valueOf() });
+      }
+      console.log('acc result: ', acc);
+      return acc;
+    };
+    (function() {
+      const existingCart = JSON.parse(sessionStorage.getItem('${ssKey}') || '{}');
+      const restaurant_id = Number(${this.shopId});
+      const isSameOrigin = existingCart.restaurant_id === restaurant_id;
+      const restaurant = ${JSON.stringify(
+        await this.service.getInfo(this.shopId).toPromise()
+      )};
+      const restaurant_name = restaurant.name;
+      const items = (isSameOrigin ? existingCart.items : []).concat(${JSON.stringify(
+        this.data
+      )}).reduce(cartItemReducer, []);
+      const result = {
+        restaurant_id,
+        restaurant,
+        restaurant_name,
+        checkout_address: ${JSON.stringify(this.address)},
+        items,
+        default_price: 0,
+      };
+      sessionStorage.setItem('${ssKey}', JSON.stringify(result));
+      window.location.reload();
+    })()`;
   }
 
   copied(e: any) {
