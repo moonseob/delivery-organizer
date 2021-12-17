@@ -1,0 +1,39 @@
+<mat-toolbar color="accent">
+  <h1>장바구니 보기</h1>
+  <div style="flex: 1 1 auto"></div>
+  <a mat-icon-button (click)="close()">
+    <mat-icon>close</mat-icon>
+  </a>
+</mat-toolbar>
+<h2 style="padding: 24px 24px 0">{{ name$ | async }}</h2>
+<section class="content">
+  <app-shopping-cart-item
+    *ngFor="let item of (cart$ | async)?.items"
+    [item]="item"
+    (remove)="removeItem(item.slug)"
+  ></app-shopping-cart-item>
+</section>
+<section class="no-item" *ngIf="!count">
+  <span class="emoji">😢</span>
+  <span>장바구니가 비어있어요.</span>
+</section>
+<section class="content">
+  <p class="display">
+    <span>주문한 메뉴</span>
+    <strong>{{ count }}개</strong>
+  </p>
+  <p class="display">
+    합계 <strong>{{ gt | currency }}</strong>
+  </p>
+  <button
+    mat-raised-button
+    color="accent"
+    class="submit-button"
+    (click)="submit()"
+    [disabled]="!(+count > 0) || (isLoading$ | async)"
+    [ngSwitch]="isLoading$ | async"
+  >
+    <ng-container *ngSwitchDefault>주문 확정하기</ng-container>
+    <ng-container *ngSwitchCase="true">주문을 전송중입니다...</ng-container>
+  </button>
+</section>

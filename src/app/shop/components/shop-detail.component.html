@@ -1,0 +1,6 @@
+<section class="header" *ngIf="info$ | async as info">
+  <h1>{{ info.name }}</h1>
+</section>
+<section class="category" *ngFor="let category of categories$ | async">
+  <app-shop-menu-category [category]="category"></app-shop-menu-category>
+</section>

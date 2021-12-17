@@ -1,0 +1,11 @@
+<section class="header">
+  <h2 class="name">{{ category.name }}</h2>
+  <p class="description">{{ category.description || "" }}</p>
+</section>
+<section class="menus">
+  <ul>
+    <li *ngFor="let menu of category.items">
+      <app-shop-menu-card [menu]="menu"></app-shop-menu-card>
+    </li>
+  </ul>
+</section>

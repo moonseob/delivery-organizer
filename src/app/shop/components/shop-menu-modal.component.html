@@ -1,0 +1,33 @@
+<form (ngSubmit)="submit()">
+  <section
+    *ngIf="!!menu.image"
+    mat-dialog-title
+    style.background-image="url({{ menu.image }})"
+    class="hero"
+  ></section>
+  <mat-dialog-content>
+    <div class="head">
+      <h1 class="name">{{ menu.name }}</h1>
+      <p class="description">{{ menu.description }}</p>
+    </div>
+    <div class="body" *ngIf="menu.subchoices?.length > 0">
+      <app-shop-menu-subchoice-form
+        *ngFor="let subchoice of menu.subchoices"
+        [ac]="formGroup.get(subchoice.slug)"
+        [group]="subchoice"
+      ></app-shop-menu-subchoice-form>
+    </div>
+  </mat-dialog-content>
+  <mat-dialog-actions align="center">
+    <p>가격: {{ price$ | async | currency }}</p>
+    <button
+      type="submit"
+      class="submit"
+      mat-raised-button
+      color="primary"
+      [disabled]="formGroup.invalid"
+    >
+      장바구니 담기
+    </button>
+  </mat-dialog-actions>
+</form>

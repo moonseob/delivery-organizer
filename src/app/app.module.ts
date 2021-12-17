@@ -1,18 +1,70 @@
-import { NgModule } from '@angular/core';
+import { HttpClientModule } from '@angular/common/http';
+import { DEFAULT_CURRENCY_CODE, NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
-
-import { AppRoutingModule } from './app-routing.module';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { RouterModule, Routes } from '@angular/router';
+import { ServiceWorkerModule } from '@angular/service-worker';
+import { MatModule } from 'src/mat.module';
+import { environment } from '../environments/environment';
 import { AppComponent } from './app.component';
+import { HistoryComponent } from './shared/components/history.component';
+import { LoginComponent } from './shared/components/login.component';
+import { OrderSuccessComponent } from './shared/components/order-success.component';
+import { AuthGuard } from './shared/services/auth.guard';
+import { SharedModule } from './shared/shared.module';
+
+const routes: Routes = [
+  {
+    path: '',
+    redirectTo: 'shop',
+    pathMatch: 'full',
+  },
+  {
+    path: 'login',
+    component: LoginComponent,
+  },
+  {
+    path: 'success',
+    component: OrderSuccessComponent,
+  },
+  {
+    path: 'history',
+    component: HistoryComponent,
+  },
+  {
+    path: 'shop',
+    canActivate: [AuthGuard],
+    loadChildren: async () => (await import('./shop/shop.module')).ShopModule,
+  },
+  {
+    path: 'admin',
+    loadChildren: async () =>
+      (await import('./admin/admin.module')).AdminModule,
+  },
+];
 
 @NgModule({
-  declarations: [
-    AppComponent
-  ],
+  declarations: [AppComponent],
   imports: [
     BrowserModule,
-    AppRoutingModule
+    HttpClientModule,
+    MatModule,
+    BrowserAnimationsModule,
+    RouterModule.forRoot(routes),
+    ServiceWorkerModule.register('ngsw-worker.js', {
+      enabled: environment.production,
+      // Register the ServiceWorker as soon as the app is stable
+      // or after 30 seconds (whichever comes first).
+      registrationStrategy: 'registerWhenStable:30000',
+    }),
+    SharedModule,
   ],
-  providers: [],
-  bootstrap: [AppComponent]
+  providers: [
+    {
+      provide: DEFAULT_CURRENCY_CODE,
+      useValue: 'KRW',
+    },
+  ],
+  bootstrap: [AppComponent],
 })
-export class AppModule { }
+export class AppModule {}

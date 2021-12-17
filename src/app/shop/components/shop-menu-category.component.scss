@@ -1,0 +1,27 @@
+:host {
+  display: block;
+  margin-bottom: 2em;
+}
+
+.header {
+  text-align: center;
+}
+.menus > ul {
+  padding: 0;
+  margin: 0;
+  list-style: none;
+  display: grid;
+  // grid-gap: 40px 24px;
+  grid-gap: 20px;
+  grid-template-columns: repeat(1, 1fr);
+}
+
+app-shop-menu-card {
+  flex: 1 1 35%;
+  background-color: white;
+  box-shadow: 1px 1px 4px 1px rgb(0 0 0 / 15%);
+  transition: box-shadow 0.2s;
+  &:hover {
+    box-shadow: 1px 1px 4px 1px rgb(0 0 0 / 5%);
+  }
+}

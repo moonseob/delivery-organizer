@@ -1,0 +1,26 @@
+<mat-card [ngSwitch]="group.multiple">
+  <h2>{{ group.name }}</h2>
+  <div formArray="formArray" *ngSwitchCase="true">
+    <mat-checkbox
+      class="selection"
+      *ngFor="let control of ac.controls; let i = index"
+      [formControl]="control"
+      [value]="group.subchoices[i].slug"
+      >{{ group.subchoices[i].name
+      }}<span class="price-change" *ngIf="+group.subchoices[i].price"
+        >(+{{ group.subchoices[i].price | currency }})</span
+      ></mat-checkbox
+    >
+  </div>
+  <mat-radio-group *ngSwitchDefault [formControl]="ac">
+    <mat-radio-button
+      class="selection"
+      *ngFor="let subchoice of group.subchoices; let i = index"
+      [value]="[subchoice.slug]"
+      >{{ subchoice.name }}
+      <span class="price-change" *ngIf="+subchoice.price"
+        >(+{{ subchoice.price | currency }})</span
+      ></mat-radio-button
+    >
+  </mat-radio-group>
+</mat-card>
