@@ -5,7 +5,7 @@
 export const environment = {
   production: false,
   apiUrl: 'http://localhost:8253/api',
-  authUrl: 'http://localhost:8253',
+  authUrl: 'http://localhost:8253/auth',
   deployUrl: '',
 };
 

@@ -22,7 +22,7 @@ export class AuthService {
   }
 
   getLogoutUrl() {
-    return `${environment.authUrl}/auth/logout`;
+    return `${environment.authUrl}/logout`;
   }
 
   getUser() {

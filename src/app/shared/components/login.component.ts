@@ -19,5 +19,5 @@ import { environment } from 'src/environments/environment';
 })
 export class LoginComponent {
   constructor() {}
-  signinUrl = `${environment.authUrl}/auth/google`;
+  signinUrl = `${environment.authUrl}/google`;
 }
