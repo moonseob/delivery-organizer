@@ -7,6 +7,7 @@ import session from 'express-session';
 import passport from 'passport';
 import { OAuth2Strategy } from 'passport-google-oauth';
 import * as redis from 'redis';
+import * as path from 'path';
 import 'dotenv/config';
 import { promisify } from 'util';
 // import { Order } from '../app/shared/models/order.model';
@@ -94,6 +95,22 @@ passport.serializeUser(function (user, done) {
 passport.deserializeUser(function (user, done) {
   done(null, user as any);
 });
+
+// production 전용
+if (process.env.NODE_ENV = 'production') {
+  // path는 Dockerfile 참고
+  const webDirectory = path.resolve(__dirname + `/../app`);
+  app.set('view engine', 'html');
+  app.use(express.static(webDirectory));
+  app.get('/', (req: express.Request, res: express.Response) => {
+    try {
+      res.sendFile(webDirectory + '/index.html');
+    } catch (e) {
+      res.status(404);
+      res.send('not found')
+    }
+  });
+}
 
 app.get(
   '/auth/google',
