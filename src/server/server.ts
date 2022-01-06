@@ -102,14 +102,6 @@ if (process.env.NODE_ENV = 'production') {
   const webDirectory = path.resolve(__dirname + `/../app`);
   app.set('view engine', 'html');
   app.use(express.static(webDirectory));
-  app.get('/', (req: express.Request, res: express.Response) => {
-    try {
-      res.sendFile(webDirectory + '/index.html');
-    } catch (e) {
-      res.status(404);
-      res.send('not found')
-    }
-  });
 }
 
 app.get(
