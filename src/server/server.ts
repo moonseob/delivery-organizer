@@ -7,6 +7,8 @@ import session from 'express-session';
 import passport from 'passport';
 import { OAuth2Strategy } from 'passport-google-oauth';
 import * as redis from 'redis';
+import * as path from 'path';
+import 'dotenv/config';
 import { promisify } from 'util';
 // import { Order } from '../app/shared/models/order.model';
 import { YOGIYO } from './constants';
@@ -20,8 +22,8 @@ declare module 'express-session' {
 
 var GoogleStrategy = OAuth2Strategy;
 
-const APP_URL = `//localhost:4200`;
-const PORT = 8253;
+const APP_URL = process.env.APP_URL;
+const PORT = process.env.API_PORT;
 const app = express();
 
 let STORE_LIST: { id: string; due: string }[] = [
@@ -34,18 +36,24 @@ let STORE_LIST: { id: string; due: string }[] = [
 /** CORS 허용 미들웨어 */
 app.use(
   cors({
-    origin: 'http://localhost:4200',
+    origin: APP_URL,
     credentials: true,
   })
 );
-const RedisStore = connectRedis(session);
-const redisClient = redis.createClient({
+
+const config: redis.ClientOpts = {
   retry_strategy: (options) => {
     console.error('authRedis connection interruption');
     console.error('Retrying');
     return Math.min(options.attempt * 100, 3000); // 100ms
   },
-});
+};
+process.env.REDIS_HOST != null && (config.host = process.env.REDIS_HOST);
+process.env.REDIS_PORT != null && (config.port = +process.env.REDIS_PORT);
+process.env.REDIS_PREFIX != null && (config.prefix = process.env.REDIS_PREFIX);
+
+const RedisStore = connectRedis(session);
+const redisClient = redis.createClient(config);
 const redisClientGetAsync = promisify(redisClient.get).bind(redisClient);
 const MAX_AGE = 86400; // seconds, 1일
 
@@ -56,9 +64,9 @@ app.use(
       client: redisClient,
       prefix: 'session:',
     }),
-    secret: 'com.pizza.combination.jp',
+    secret: process.env.REDIS_SECRET || '',
     cookie: { maxAge: MAX_AGE * 1000 },
-    resave: true,
+    resave: false,
     saveUninitialized: true,
   })
 );
@@ -71,10 +79,9 @@ app.use(passport.session());
 passport.use(
   new GoogleStrategy(
     {
-      clientID:
-        '571943749312-npf9m3k24i3kaekvsio5ga7pmkdduatb.apps.googleusercontent.com',
-      clientSecret: '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',
-      callbackURL: 'http://localhost:8253/auth/google/callback',
+      clientID: process.env.GOOGLE_CLIENT_ID || '',
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET || '',
+      callbackURL: process.env.GOOGLE_CALLBACK_URL || '',
     },
     (accessToken, refreshToken, profile, done) => {
       return done(null, profile);
@@ -88,6 +95,14 @@ passport.serializeUser(function (user, done) {
 passport.deserializeUser(function (user, done) {
   done(null, user as any);
 });
+
+// production 전용
+if (process.env.NODE_ENV = 'production') {
+  // path는 Dockerfile 참고
+  const webDirectory = path.resolve(__dirname + `/../app`);
+  app.set('view engine', 'html');
+  app.use(express.static(webDirectory));
+}
 
 app.get(
   '/auth/google',
