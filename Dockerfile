@@ -15,10 +15,10 @@ ADD https://github.com/krallin/tini/releases/download/${TINI_VERSION}/tini /usr/
 RUN chmod +x /usr/local/bin/tini
 
 WORKDIR /opt/delivery
-ENV NODE_ENV=production
 COPY src/server/package.json src/server/package-lock.json ./
 RUN npm ci
 
+ENV NODE_ENV=production
 COPY --from=builder /opt/delivery/dist/delivery-organizer ./app
 COPY ./src/server .
 RUN npm run build
