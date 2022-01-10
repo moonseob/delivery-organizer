@@ -1,4 +1,4 @@
-ARG base=node:14.17.1
+ARG base=node:16.13.1
 FROM $base as builder
 
 WORKDIR /opt/delivery
@@ -14,11 +14,11 @@ ENV TINI_VERSION v0.19.0
 ADD https://github.com/krallin/tini/releases/download/${TINI_VERSION}/tini /usr/local/bin/tini
 RUN chmod +x /usr/local/bin/tini
 
+ENV NODE_ENV=production
 WORKDIR /opt/delivery
 COPY src/server/package.json src/server/package-lock.json ./
 RUN npm ci
 
-ENV NODE_ENV=production
 COPY --from=builder /opt/delivery/dist/delivery-organizer ./app
 COPY ./src/server .
 RUN npm run build
