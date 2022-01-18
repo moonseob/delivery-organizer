@@ -96,14 +96,6 @@ passport.deserializeUser(function (user, done) {
   done(null, user as any);
 });
 
-// production 전용
-if (process.env.NODE_ENV = 'production') {
-  // path는 Dockerfile 참고
-  const webDirectory = path.resolve(__dirname + `/../app`);
-  app.set('view engine', 'html');
-  app.use(express.static(webDirectory));
-}
-
 app.get(
   '/auth/google',
   passport.authenticate('google', {
@@ -372,6 +364,22 @@ app.post('/api/admin/shop_list', (req, res) => {
     res.sendStatus(500);
   }
 });
+
+// production 전용
+if (process.env.NODE_ENV = 'production') {
+  // path는 Dockerfile 참고
+  const webDirectory = path.resolve(__dirname + `/../app`);
+  app.set('view engine', 'html');
+  app.use(express.static(webDirectory));
+  app.use('/*', (_, res: express.Response) => {
+    try {
+      res.sendFile(webDirectory + '/index.html');
+    } catch (e) {
+      res.status(404);
+      res.send('not found');
+    }
+  });
+}
 
 app.listen(PORT, () => {
   console.log(`⚡️[server]: Server is running at https://localhost:${PORT}`);

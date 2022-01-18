@@ -42,9 +42,7 @@
               "./node_modules/normalize.css/normalize.css",
               "src/styles.scss"
             ],
-            "scripts": [],
-            "serviceWorker": true,
-            "ngswConfigPath": "ngsw-config.json"
+            "scripts": []
           },
           "configurations": {
             "production": {
