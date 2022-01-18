@@ -75,9 +75,15 @@ export class ShopMenuModalComponent implements OnInit {
             );
           }
           if (control instanceof FormArray) {
-            items = (control.value as boolean[])
-              ?.filter((value) => value)
-              .map((_, idx) => group.subchoices[idx]);
+            items = (control.value as boolean[])?.reduce(
+              (accum, value, index) => {
+                if (value === true) {
+                  accum.push(group.subchoices[index]);
+                }
+                return accum;
+              },
+              [] as MenuSubchoice[]
+            );
           }
           if (items?.length > 0) {
             // 옵션들의 가격 다 더하기
