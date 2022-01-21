@@ -45,7 +45,10 @@ export class ShopMenuModalComponent implements OnInit {
           (ac as FormArray).push(this.fb.control(false));
         });
       } else {
-        ac = this.fb.control(null, Validators.required);
+        ac = this.fb.control(null);
+        if (subchoice.mandatory) {
+          ac.addValidators(Validators.required);
+        }
       }
       // ac.updateValueAndValidity();
       this.formGroup.addControl(subchoice.slug, ac);
