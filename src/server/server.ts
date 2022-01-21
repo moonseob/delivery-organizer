@@ -359,7 +359,7 @@ app.post('/api/admin/shop_list', (req, res) => {
 });
 
 // production 전용
-if (process.env.NODE_ENV = 'production') {
+if (process.env.NODE_ENV === 'production') {
   // path는 Dockerfile 참고
   const webDirectory = path.resolve(__dirname + `/../app`);
   app.set('view engine', 'html');
