@@ -18,8 +18,8 @@ export class AdminPanelComponent implements OnInit {
   ) {}
 
   addressGroup = this.fb.group({
-    address: ['경기도 성남시 수정구 복정동 620-2 가천대학교'],
-    zipcode: ['461200'],
+    address: [],
+    zipcode: [],
   });
 
   formArray = this.fb.array([]);

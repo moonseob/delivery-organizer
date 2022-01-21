@@ -26,13 +26,6 @@ const APP_URL = process.env.APP_URL;
 const PORT = process.env.API_PORT;
 const app = express();
 
-let STORE_LIST: { id: string; due: string }[] = [
-  { id: '344991', due: new Date().toISOString() },
-  { id: '462893', due: new Date().toISOString() },
-  { id: '508204', due: new Date().toISOString() },
-  { id: '270108', due: new Date().toISOString() },
-];
-
 /** CORS 허용 미들웨어 */
 app.use(
   cors({
