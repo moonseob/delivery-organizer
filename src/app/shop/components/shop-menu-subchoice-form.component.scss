@@ -11,3 +11,14 @@
     white-space: pre;
   }
 }
+
+.info {
+  padding: 0.3em;
+  display: block;
+  text-align: center;
+  background-color: #f5f5f5;
+  font-weight: bold;
+  &.invalid {
+    color: #ff4081;
+  }
+}

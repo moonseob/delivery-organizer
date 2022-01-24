@@ -1,5 +1,12 @@
-import { Component, Inject, OnInit } from '@angular/core';
 import {
+  AfterViewInit,
+  ChangeDetectorRef,
+  Component,
+  Inject,
+  OnInit,
+} from '@angular/core';
+import {
+  AbstractControl,
   FormArray,
   FormBuilder,
   FormControl,
@@ -17,14 +24,16 @@ import { Menu, MenuSubchoice } from '../models/shop-menu.model';
   templateUrl: './shop-menu-modal.component.html',
   styleUrls: ['./shop-menu-modal.component.scss'],
 })
-export class ShopMenuModalComponent implements OnInit {
+export class ShopMenuModalComponent implements OnInit, AfterViewInit {
   constructor(
     @Inject(MAT_DIALOG_DATA) public menu: Menu,
     private fb: FormBuilder,
-    private dialogRef: MatDialogRef<ShopMenuModalComponent>
+    private dialogRef: MatDialogRef<ShopMenuModalComponent>,
+    private cdr: ChangeDetectorRef
   ) {}
 
   formGroup = this.fb.group({});
+  disableSubmit = true;
   subchoices: CartItem['subchoices'] = {};
   result$: Observable<CartItem | null> = of(null);
   price$!: Observable<number>;
@@ -37,10 +46,22 @@ export class ShopMenuModalComponent implements OnInit {
     this.menu.subchoices.forEach((subchoice) => {
       let ac: FormControl | FormArray;
       if (subchoice.multiple) {
-        ac = this.fb.array(
-          [],
-          Validators.minLength(subchoice.multiple_count ?? 0)
-        );
+        ac = this.fb.array([]);
+        if (subchoice.multiple_count) {
+          const lengthValidator = (control: AbstractControl) => {
+            const requiredLength = subchoice.multiple_count;
+            const actualLength = (control.value as boolean[]).filter(
+              Boolean
+            ).length;
+            if (requiredLength !== actualLength) {
+              return {
+                length: { requiredLength, actualLength },
+              };
+            }
+            return null;
+          };
+          ac.addValidators(lengthValidator);
+        }
         subchoice.subchoices.forEach((x) => {
           (ac as FormArray).push(this.fb.control(false));
         });
@@ -50,10 +71,8 @@ export class ShopMenuModalComponent implements OnInit {
           ac.addValidators(Validators.required);
         }
       }
-      // ac.updateValueAndValidity();
-      this.formGroup.addControl(subchoice.slug, ac);
+      this.formGroup.setControl(subchoice.slug, ac);
     });
-    this.formGroup.updateValueAndValidity();
 
     // form group의 값에 따라 결과값 생성(rx)
     this.result$ = this.formGroup.valueChanges.pipe(
@@ -113,6 +132,11 @@ export class ShopMenuModalComponent implements OnInit {
       shareReplay(1)
     );
     this.price$ = this.result$.pipe(map((cart) => cart?.price ?? 0));
+  }
+
+  ngAfterViewInit(): void {
+    this.formGroup.updateValueAndValidity();
+    this.cdr.detectChanges();
   }
 
   async submit() {
