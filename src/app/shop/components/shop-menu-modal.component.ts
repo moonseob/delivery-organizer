@@ -31,7 +31,6 @@ export class ShopMenuModalComponent implements OnInit, AfterViewInit {
     private dialogRef: MatDialogRef<ShopMenuModalComponent>,
     private cdr: ChangeDetectorRef
   ) {}
-
   formGroup = this.fb.group({});
   disableSubmit = true;
   subchoices: CartItem['subchoices'] = {};

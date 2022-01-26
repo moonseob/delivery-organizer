@@ -16,12 +16,56 @@
   grid-template-columns: repeat(1, 1fr);
 }
 
-app-shop-menu-card {
+.menu-card {
+  color: initial;
+  text-decoration: none;
   flex: 1 1 35%;
   background-color: white;
   box-shadow: 1px 1px 4px 1px rgb(0 0 0 / 15%);
   transition: box-shadow 0.2s;
   &:hover {
     box-shadow: 1px 1px 4px 1px rgb(0 0 0 / 5%);
+  }
+  display: flex;
+  min-height: 150px;
+  p {
+    margin: 0;
+  }
+  .text {
+    flex: 1 1 auto;
+    padding: 1em;
+    display: flex;
+    flex-direction: column;
+  }
+  .name {
+    font-weight: normal;
+    margin: 0;
+    margin-bottom: 0.3em;
+  }
+  .description {
+    font-size: 0.85em;
+    color: gray;
+  }
+  .price {
+    margin-top: auto;
+  }
+  .image {
+    flex: 0 0 200px;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    position: relative;
+    &::after {
+      content: "";
+      position: absolute;
+      height: 100%;
+      width: 15%;
+      background-image: linear-gradient(
+        to right,
+        rgba(255, 255, 255, 1),
+        rgba(255, 255, 255, 0)
+      );
+      z-index: 1;
+    }
   }
 }

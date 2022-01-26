@@ -4,8 +4,15 @@
 </section>
 <section class="menus">
   <ul>
-    <li *ngFor="let menu of category.items">
-      <app-shop-menu-card [menu]="menu"></app-shop-menu-card>
+    <li *ngFor="let menu of category.items; index as i">
+      <a class="menu-card" [routerLink]="['..', menu.slug]">
+        <div class="text">
+          <h4 class="name">{{ menu.name }}</h4>
+          <p class="description">{{ menu.description }}</p>
+          <p class="price">{{ menu.price | currency }}</p>
+        </div>
+        <div class="image" style.background-image="url({{ menu.image }})"></div>
+      </a>
     </li>
   </ul>
 </section>
