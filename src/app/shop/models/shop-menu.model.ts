@@ -55,7 +55,10 @@ export interface MenuSubchoiceGroupCart {
 }
 export interface MenuSubchoiceGroup
   extends Omit<MenuSubchoiceGroupCart, 'items'> {
-  /** 선택 해제 불가 */
+  /**
+   * true: `multiple_count` 만큼 선택 해야 주문 가능
+   * false: 최대 `multiple_count`개 까지 선택 가능
+   */
   mandatory: boolean;
   /** 최대 동시 선택 가능 수량 */
   multiple_count: number;

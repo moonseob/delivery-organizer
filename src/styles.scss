@@ -29,3 +29,8 @@ h1 {
 .header {
   margin: 2em 0;
 }
+
+// increase specificity
+.mat-radio-label.mat-radio-label {
+  white-space: inherit;
+}

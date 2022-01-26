@@ -5,7 +5,11 @@
       *ngIf="group.multiple && group.multiple_count as count"
       class="info"
       [class.invalid]="ac.invalid"
-    >{{ count }}개 필수 선택</p>
+      [ngSwitch]="group.mandatory"
+    >
+      <ng-contianer *ngSwitchCase="true">{{ count }}개 필수 선택</ng-contianer>
+      <ng-contianer *ngSwitchDefault>최대 {{ count }}개 선택</ng-contianer>
+    </p>
     <mat-checkbox
       class="selection"
       *ngFor="let control of ac.controls; let i = index"

@@ -52,10 +52,11 @@ export class ShopMenuModalComponent implements OnInit, AfterViewInit {
             const actualLength = (control.value as boolean[]).filter(
               Boolean
             ).length;
-            if (requiredLength !== actualLength) {
-              return {
-                length: { requiredLength, actualLength },
-              };
+            if (
+              (subchoice.mandatory && requiredLength !== actualLength) ||
+              requiredLength < actualLength
+            ) {
+              return { length: { requiredLength, actualLength } };
             }
             return null;
           };
