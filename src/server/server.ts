@@ -2,13 +2,13 @@ import axios, { AxiosResponse } from 'axios';
 import connectRedis from 'connect-redis';
 import cors from 'cors';
 import { randomUUID } from 'crypto';
+import 'dotenv/config';
 import express from 'express';
 import session from 'express-session';
 import passport from 'passport';
 import { OAuth2Strategy } from 'passport-google-oauth';
-import * as redis from 'redis';
 import * as path from 'path';
-import 'dotenv/config';
+import * as redis from 'redis';
 import { promisify } from 'util';
 // import { Order } from '../app/shared/models/order.model';
 import { YOGIYO } from './constants';
@@ -352,6 +352,30 @@ app.post('/api/admin/shop_list', (req, res) => {
   try {
     const { data } = req.body;
     redisClient.set('shops', JSON.stringify(data));
+    res.send({ success: true });
+  } catch (err) {
+    res.sendStatus(500);
+  }
+});
+
+app.get('/api/admin/address', (req, res) => {
+  try {
+    redisClient.get('address', async (err, data) => {
+      if (!data) {
+        return res.status(400).send({ error: 'address not found' });
+      }
+      res.json({ data: JSON.parse(data) });
+    });
+  } catch (err) {
+    err instanceof Error && console.error(err.message);
+    res.sendStatus(500);
+  }
+});
+
+app.post('/api/admin/address', (req, res) => {
+  try {
+    const { data } = req.body;
+    redisClient.set('address', JSON.stringify(data));
     res.send({ success: true });
   } catch (err) {
     res.sendStatus(500);

@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, Validators } from '@angular/forms';
-import { map, shareReplay } from 'rxjs/operators';
+import { of } from 'rxjs';
+import { catchError, map, shareReplay } from 'rxjs/operators';
 import { CartItem } from 'src/app/shared/models/cart.model';
 import { ShopApiService } from 'src/app/shop/services/shop-api.service';
 import { AdminApiService, ShopData } from '../services/admin-api.service';
@@ -80,10 +81,27 @@ export class AdminPanelComponent implements OnInit {
     return this.cartItems$.pipe(map((cart) => cart[key])).pipe(shareReplay(1));
   }
 
+  async updateAddress() {
+    const { value } = this.addressGroup;
+    await this.apiService.setAddress(value).toPromise();
+  }
+
   async ngOnInit() {
     const shopList = await this.shopService.getShops().toPromise();
     shopList.forEach((shop) => {
       this.newShop(shop.id, shop.due);
     });
+    const address = await this.apiService
+      .getAddress()
+      .pipe(
+        catchError(() =>
+          of({
+            address: '',
+            zipcode: '',
+          })
+        )
+      )
+      .toPromise();
+    this.addressGroup.setValue(address);
   }
 }

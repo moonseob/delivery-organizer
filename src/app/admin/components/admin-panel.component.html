@@ -29,8 +29,9 @@
 <button type="button" mat-raised-button color="warn" (click)="updateShops()">
   가게 목록 업데이트
 </button>
+
 <h2>주소 입력</h2>
-<form [formGroup]="addressGroup">
+<form [formGroup]="addressGroup" (ngSubmit)="updateAddress()">
   <mat-form-field appearance="fill" class="form-field-address">
     <mat-label>기본 주소</mat-label>
     <input matInput formControlName="address" />
@@ -39,6 +40,11 @@
     <mat-label>우편번호(6자리)</mat-label>
     <input matInput formControlName="zipcode" />
   </mat-form-field>
+  <button
+    type="submit"
+    mat-stroked-button
+    color="primary"
+  >주소 저장</button>
 </form>
 <h2>장바구니 조회</h2>
 <mat-card *ngFor="let key of cartKeys$ | async">

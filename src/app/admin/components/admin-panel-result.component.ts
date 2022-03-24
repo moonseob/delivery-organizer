@@ -1,4 +1,5 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input, OnChanges } from '@angular/core';
+import { shareReplay } from 'rxjs/operators';
 import { CartItem, CheckoutAddress } from 'src/app/shared/models/cart.model';
 import { ShopApiService } from 'src/app/shop/services/shop-api.service';
 
@@ -7,16 +8,18 @@ import { ShopApiService } from 'src/app/shop/services/shop-api.service';
   templateUrl: './admin-panel-result.component.html',
   styleUrls: ['./admin-panel-result.component.scss'],
 })
-export class AdminPanelResultComponent implements OnInit {
+export class AdminPanelResultComponent implements OnChanges {
   constructor(private service: ShopApiService) {}
 
   @Input() shopId!: string;
   @Input() address!: CheckoutAddress;
   @Input() data!: CartItem[];
 
+  private shopInfo$ = this.service.getInfo(this.shopId).pipe(shareReplay(1));
+
   resultCode = '';
 
-  async ngOnInit() {
+  async ngOnChanges() {
     const ssKey = 'ngStorage-cart';
     // this.getCodeString(ssKey)
     this.resultCode = `
@@ -41,9 +44,7 @@ export class AdminPanelResultComponent implements OnInit {
       const existingCart = JSON.parse(sessionStorage.getItem('${ssKey}') || '{}');
       const restaurant_id = Number(${this.shopId});
       const isSameOrigin = existingCart.restaurant_id === restaurant_id;
-      const restaurant = ${JSON.stringify(
-        await this.service.getInfo(this.shopId).toPromise()
-      )};
+      const restaurant = ${JSON.stringify(await this.shopInfo$.toPromise())};
       const restaurant_name = restaurant.name;
       const items = (isSameOrigin ? existingCart.items : []).concat(${JSON.stringify(
         this.data
